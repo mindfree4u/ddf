@@ -68,6 +68,7 @@ function MainMenu({ isAdmin }) {
   const handleMenuClick = (path) => {
     navigate(path);
     setIsMenuOpen(false);
+    setShowSubmenu(false);
   };
 
   const toggleMenu = () => {
@@ -147,7 +148,7 @@ function MainMenu({ isAdmin }) {
               <li className="admin-menu">
                 <span>관리자 메뉴</span>
                 <ul className="admin-dropdown">
-                  <li><Link to="/member-info">회원관리</Link></li>
+                  <li><Link to="/member-info" onClick={() => setShowSubmenu(false)}>회원관리</Link></li>
                 </ul>
               </li>
             )}
@@ -163,8 +164,8 @@ function MainMenu({ isAdmin }) {
                   </span>
                   {showSubmenu && (
                     <div className="submenu">
-                      <Link to="/profile" className="submenu-item">회원정보 수정</Link>
-                      <Link to="/my-reservations" className="submenu-item">예약현황</Link>
+                      <Link to="/profile" className="submenu-item" onClick={() => setShowSubmenu(false)}>회원정보 수정</Link>
+                      <Link to="/my-reservations" className="submenu-item" onClick={() => setShowSubmenu(false)}>예약현황</Link>
                       <button onClick={handleLogout} className="logout-button">
                         로그아웃
                       </button>
