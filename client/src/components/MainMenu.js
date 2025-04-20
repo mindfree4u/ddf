@@ -6,7 +6,7 @@ import { signOut } from 'firebase/auth';
 import { auth } from '../firebase';
 import './MainMenu.css';
 
-function MainMenu() {
+function MainMenu({ isAdmin }) {
   const location = useLocation();
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -38,10 +38,9 @@ function MainMenu() {
   const handleLogout = async () => {
     try {
       await signOut(auth);
-      navigate('/main');
-      window.location.reload();
+      navigate('/login');
     } catch (error) {
-      console.error('Error signing out:', error);
+      console.error('로그아웃 중 오류 발생:', error);
     }
   };
 
@@ -70,6 +69,12 @@ function MainMenu() {
     setIsMenuOpen(!isMenuOpen);
   };
 
+  // 현재 로그인한 사용자의 이름 가져오기
+  const userName = auth.currentUser?.displayName || auth.currentUser?.email || '사용자';
+
+  console.log('MainMenu isAdmin:', isAdmin);
+  console.log('MainMenu isAdmin type:', typeof isAdmin);
+
   return (
     <nav className="navbar">
       <div className="container" ref={menuRef}>
@@ -83,7 +88,7 @@ function MainMenu() {
         
         <div className={`navbar-collapse ${isMenuOpen ? 'show' : ''}`}>
           <ul className="navbar-nav">
-          <li className="nav-item">
+            <li className="nav-item">
               <Link 
                 to="/introduction" 
                 className={`nav-link ${location.pathname === '/introduction' ? 'active' : ''}`}
@@ -129,19 +134,25 @@ function MainMenu() {
                 오시는 길
               </Link>
             </li>
+            {isAdmin && (
+              <li className="admin-menu">
+                <span>관리자 메뉴</span>
+                <ul className="admin-dropdown">
+                  <li><Link to="/member-info">회원관리</Link></li>
+                </ul>
+              </li>
+            )}
           </ul>
           
           <div className="nav-user">
             {isLoggedIn ? (
               <>
-              
-                {/* <span className="user-name">
-                  {auth.currentUser?.displayName || '익명'}
-                </span> */}
-                
-                <button onClick={handleLogout} className="btn-logout">
-                  로그아웃
-                </button>
+                <div className="user-info">
+                  <span className="user-name">{userName}</span>
+                  <button onClick={handleLogout} className="logout-button">
+                    로그아웃
+                  </button>
+                </div>
               </>
             ) : (
               <button onClick={handleLogin} className="btn-login">
