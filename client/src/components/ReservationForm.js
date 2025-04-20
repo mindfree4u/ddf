@@ -64,7 +64,8 @@ function ReservationForm() {
 
   const fetchReservations = async (date) => {
     try {
-      const dateStr = date.toISOString().split('T')[0];
+      const localDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
+      const dateStr = localDate.toISOString().split('T')[0];
       const reservationsRef = collection(db, 'reservations');
       const q = query(reservationsRef, where('date', '==', dateStr));
       const querySnapshot = await getDocs(q);
@@ -141,20 +142,24 @@ function ReservationForm() {
     };
   }, [showTypeButtons]);
 
-  const handleReservation = async (timeSlot, room) => {
+  const handleReservation = async (timeSlot, room, e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
     if (!auth.currentUser) {
       alert('로그인이 필요합니다.');
       navigate('/login');
       return;
     }
 
-    const dateStr = selectedDate.toISOString().split('T')[0];
+    const localDate = new Date(selectedDate.getTime() - (selectedDate.getTimezoneOffset() * 60000));
+    const dateStr = localDate.toISOString().split('T')[0];
     const reservationKey = `${dateStr}_${timeSlot}_${room}`;
     
     if (reservations[reservationKey]) {
-      // 이미 예약된 경우
       if (isAdmin && reservations[reservationKey] === auth.currentUser.uid) {
-        // 관리자가 자신의 예약을 클릭한 경우에만 작업 선택 모달 표시
         setSelectedReservation({
           timeSlot,
           room,
@@ -163,7 +168,6 @@ function ReservationForm() {
         });
         setShowActionModal(true);
       } else if (reservations[reservationKey] === auth.currentUser.uid) {
-        // 일반 사용자가 자신의 예약을 취소하는 경우
         if (window.confirm('해당 예약을 취소하시겠습니까?')) {
           await cancelReservation(reservationKey, reservationIds[reservationKey]);
         }
@@ -173,21 +177,42 @@ function ReservationForm() {
       return;
     }
 
+    // 이미 선택된 셀이 있다면 초기화
+    if (selectedTimeSlot || selectedRoom) {
+      setSelectedTimeSlot(null);
+      setSelectedRoom(null);
+      setShowTypeButtons(false);
+    }
+
     setSelectedTimeSlot(timeSlot);
     setSelectedRoom(room);
     setShowTypeButtons(true);
   };
 
-  const handleTypeSelection = async (type) => {
+  const handleTypeSelection = async (type, e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
     if (!selectedTimeSlot || !selectedRoom) return;
 
-    await makeReservation(type, auth.currentUser.displayName || '익명');
+    try {
+      await makeReservation(type, auth.currentUser.displayName || '익명');
+      setShowTypeButtons(false);
+      setSelectedTimeSlot(null);
+      setSelectedRoom(null);
+    } catch (error) {
+      console.error('예약 처리 중 오류 발생:', error);
+      alert('예약 처리 중 오류가 발생했습니다.');
+    }
   };
 
   const makeReservation = async (type, userName) => {
     if (!selectedTimeSlot || !selectedRoom) return;
 
-    const dateStr = selectedDate.toISOString().split('T')[0];
+    const localDate = new Date(selectedDate.getTime() - (selectedDate.getTimezoneOffset() * 60000));
+    const dateStr = localDate.toISOString().split('T')[0];
     const reservationKey = `${dateStr}_${selectedTimeSlot}_${selectedRoom}`;
 
     try {
@@ -253,7 +278,8 @@ function ReservationForm() {
 
   const updateReservationName = async (reservationKey, reservationId, newName) => {
     try {
-      const dateStr = selectedDate.toISOString().split('T')[0];
+      const localDate = new Date(selectedDate.getTime() - (selectedDate.getTimezoneOffset() * 60000));
+      const dateStr = localDate.toISOString().split('T')[0];
       const reservation = await getDoc(doc(db, 'reservations', reservationId));
       
       if (reservation.exists()) {
@@ -336,16 +362,19 @@ function ReservationForm() {
   };
 
   const formatDateForDisplay = (date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
+    // 시간대를 고려한 날짜 계산
+    const localDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
+    const year = localDate.getFullYear();
+    const month = String(localDate.getMonth() + 1).padStart(2, '0');
+    const day = String(localDate.getDate()).padStart(2, '0');
     const days = ['일', '월', '화', '수', '목', '금', '토'];
-    const dayOfWeek = days[date.getDay()];
+    const dayOfWeek = days[localDate.getDay()];
     return `${year}.${month}.${day} (${dayOfWeek})`;
   };
 
   const getReservationClass = (timeSlot, room) => {
-    const dateStr = selectedDate.toISOString().split('T')[0];
+    const localDate = new Date(selectedDate.getTime() - (selectedDate.getTimezoneOffset() * 60000));
+    const dateStr = localDate.toISOString().split('T')[0];
     const reservationKey = `${dateStr}_${timeSlot}_${room}`;
     if (reservations[reservationKey]) {
       const details = reservationDetails[reservationKey];
@@ -364,7 +393,8 @@ function ReservationForm() {
   };
 
   const getReservationText = (timeSlot, room) => {
-    const dateStr = selectedDate.toISOString().split('T')[0];
+    const localDate = new Date(selectedDate.getTime() - (selectedDate.getTimezoneOffset() * 60000));
+    const dateStr = localDate.toISOString().split('T')[0];
     const reservationKey = `${dateStr}_${timeSlot}_${room}`;
     
     if (selectedTimeSlot === timeSlot && selectedRoom === room && showTypeButtons) {
@@ -372,17 +402,19 @@ function ReservationForm() {
         <div 
           className="type-buttons" 
           onClick={(e) => e.stopPropagation()}
-          onMouseLeave={handleMouseLeave}
+          onTouchEnd={(e) => e.stopPropagation()}
         >
           <button 
             className="type-button lesson"
-            onClick={() => handleTypeSelection('레슨')}
+            onClick={(e) => handleTypeSelection('레슨', e)}
+            onTouchEnd={(e) => handleTypeSelection('레슨', e)}
           >
             레슨
           </button>
           <button 
             className="type-button practice"
-            onClick={() => handleTypeSelection('연습')}
+            onClick={(e) => handleTypeSelection('연습', e)}
+            onTouchEnd={(e) => handleTypeSelection('연습', e)}
           >
             연습
           </button>
@@ -449,9 +481,9 @@ function ReservationForm() {
         </div>
         <input
           type="date"
-          value={selectedDate.toISOString().split('T')[0]}
+          value={new Date(selectedDate.getTime() - (selectedDate.getTimezoneOffset() * 60000)).toISOString().split('T')[0]}
           onChange={handleDateChange}
-          min={new Date().toISOString().split('T')[0]}
+          min={new Date(Date.now() - (new Date().getTimezoneOffset() * 60000)).toISOString().split('T')[0]}
           className="date-input"
         />
       </div>
@@ -474,9 +506,72 @@ function ReservationForm() {
                   <td 
                     key={`${timeSlot}-${room}`}
                     className={`${getReservationClass(timeSlot, room)} clickable`}
-                    onClick={() => handleReservation(timeSlot, room)}
+                    onClick={(e) => handleReservation(timeSlot, room, e)}
+                    onTouchStart={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                    onTouchEnd={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleReservation(timeSlot, room, e);
+                    }}
                   >
-                    {getReservationText(timeSlot, room)}
+                    {selectedTimeSlot === timeSlot && selectedRoom === room && showTypeButtons ? (
+                      <div 
+                        className="type-buttons"
+                        onClick={(e) => e.stopPropagation()}
+                        onTouchStart={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                        }}
+                        onTouchEnd={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                        }}
+                      >
+                        <button 
+                          className="type-button lesson"
+                          onTouchStart={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                          }}
+                          onTouchEnd={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleTypeSelection('레슨', e);
+                          }}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleTypeSelection('레슨', e);
+                          }}
+                        >
+                          레슨
+                        </button>
+                        <button 
+                          className="type-button practice"
+                          onTouchStart={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                          }}
+                          onTouchEnd={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleTypeSelection('연습', e);
+                          }}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleTypeSelection('연습', e);
+                          }}
+                        >
+                          연습
+                        </button>
+                      </div>
+                    ) : (
+                      getReservationText(timeSlot, room)
+                    )}
                   </td>
                 ))}
               </tr>

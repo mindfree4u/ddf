@@ -5,7 +5,7 @@
 }
 
 .main-content {
-  padding: 10px;
+  padding: 2px;
   min-height: calc(100vh - 60px);
   display: flex;
   flex-direction: column;

@@ -123,8 +123,8 @@
 .date-label {
   color: #666;
   font-weight: 500;
-  width: 70%;
-  margin-left: 7%;
+  width: 60%;
+  margin-left: 5%;
 }
 
 .date-value {
@@ -132,7 +132,7 @@
   font-weight: 500;
   width: 95%;
   font-size: 13px;
-  margin-left: -30px;
+  margin-left: -15px;
 }
 
 .date-input {
@@ -157,9 +157,44 @@
   box-shadow: 0 0 0 2px rgba(88, 2, 247, 0.2);
 }
 
+/* 달력의 삭제 버튼 숨기기 - 모든 브라우저 지원 */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  padding: 0.5rem;
+}
+
+/* 달력의 삭제 버튼 숨기기 - Webkit 브라우저 */
+input[type="date"]::-webkit-inner-spin-button,
+input[type="date"]::-webkit-clear-button {
+  display: none !important;
+  -webkit-appearance: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  opacity: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* 달력의 삭제 버튼 숨기기 - Firefox */
+input[type="date"]::-moz-clear {
+  display: none !important;
+}
+
+/* 달력의 삭제 버튼 숨기기 - IE */
+input[type="date"]::-ms-clear {
+  display: none !important;
+}
+
+/* 달력의 삭제 버튼 숨기기 - Edge */
+input[type="date"]::-ms-expand {
+  display: none !important;
+}
+
+/* 달력의 삭제 버튼 숨기기 - 추가 스타일 */
 .date-input::-webkit-calendar-picker-indicator {
   cursor: pointer;
   padding: 0.5rem;
+  position: relative;
 }
 
 .time-buttons {
@@ -353,11 +388,13 @@
   justify-content: center;
   gap: 8px;
   width: 100%;
+  z-index: 10;
+  position: relative;
 }
 
 .type-button {
   flex: 1;
-  padding: 0px;
+  padding: 8px 0;
   border: none;
   border-radius: 4px;
   font-size: 14px;
@@ -365,6 +402,11 @@
   cursor: pointer;
   transition: all 0.2s;
   color: white;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
 }
 
 .type-button.lesson {
@@ -414,11 +456,11 @@
   .reservation-container {
     padding: 2px;
     width: 100%;
-    max-width: 100%;
+    /* max-width: 100%; */
   }
 
   .reservation-form {
-    padding: 15px;
+    padding: 5px;
     width: 100%;
     max-width: 100%;
   }
@@ -454,15 +496,13 @@
   }
 
   .type-buttons {
-    display: flex;
-    gap: 2px;
-    width: 100%;
-    box-sizing: border-box;
+    gap: 4px;
   }
-
+  
   .type-button {
-    padding: 2px;
-    font-size: 11px;
+    padding: 10px 0;
+    font-size: 16px;
+    min-height: 44px;
   }
 
   .reservation-guide {
@@ -517,6 +557,7 @@
   max-width:100%;
   margin-left: 1px;
   margin-right: auto;
+  text-align: left;
 }
 
 .reservation-guide ul {
