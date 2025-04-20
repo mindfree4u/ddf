@@ -37,6 +37,7 @@ const MemberInfo = () => {
       <table className="member-table">
         <thead>
           <tr>
+            <th>아이디</th>
             <th>이메일</th>
             <th>이름</th>
             <th>가입일</th>
@@ -46,6 +47,7 @@ const MemberInfo = () => {
         <tbody>
           {members.map(member => (
             <tr key={member.id}>
+              <td>{member.userId}</td>
               <td>{member.email}</td>
               <td>{member.name || '-'}</td>
               <td>{member.createdAt ? new Date(member.createdAt.seconds * 1000).toLocaleDateString() : '-'}</td>

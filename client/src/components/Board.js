@@ -155,7 +155,7 @@ function Board() {
 
   return (
     <div className="board-container">
-      <h2>자유 게시판</h2>
+      <h2>게시판</h2>
       
       {isAdmin && (
         <div className="post-form-container">

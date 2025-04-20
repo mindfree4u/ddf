@@ -5,7 +5,8 @@
 }
 
 .main-content {
-  flex: 1;
-  padding: 20px;
-  margin-top: 60px; /* MainMenu의 높이만큼 여백 추가 */
+  padding: 10px;
+  min-height: calc(100vh - 60px);
+  display: flex;
+  flex-direction: column;
 } 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { auth, db } from '../firebase';
-import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
+import { collection, query, where, getDocs, orderBy, doc, getDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import './MyReservations.css';
 
@@ -9,7 +9,31 @@ const MyReservations = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      try {
+        const user = auth.currentUser;
+        if (!user) {
+          navigate('/login');
+          return;
+        }
+
+        // 사용자 문서에서 관리자 상태 확인
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          setIsAdmin(userData.isAdmin === true);
+        }
+      } catch (err) {
+        console.error('Error checking admin status:', err);
+      }
+    };
+
+    checkAdminStatus();
+  }, [navigate]);
 
   useEffect(() => {
     const fetchReservations = async () => {
@@ -24,12 +48,16 @@ const MyReservations = () => {
         const firstDay = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
         const lastDay = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
 
-        // 복합 인덱스 없이 작동하도록 쿼리 수정
-        // 먼저 사용자 ID로 필터링한 후, 클라이언트 측에서 날짜 필터링
-        const q = query(
-          collection(db, 'reservations'),
-          where('userId', '==', user.uid)
-        );
+        // 관리자인 경우 모든 예약을 가져오고, 일반 사용자인 경우 자신의 예약만 가져옴
+        let q;
+        if (isAdmin) {
+          q = query(collection(db, 'reservations'));
+        } else {
+          q = query(
+            collection(db, 'reservations'),
+            where('userId', '==', user.uid)
+          );
+        }
 
         const querySnapshot = await getDocs(q);
         const reservationsList = querySnapshot.docs
@@ -65,7 +93,7 @@ const MyReservations = () => {
     };
 
     fetchReservations();
-  }, [currentMonth, navigate]);
+  }, [currentMonth, navigate, isAdmin]);
 
   const handlePrevMonth = () => {
     setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1));

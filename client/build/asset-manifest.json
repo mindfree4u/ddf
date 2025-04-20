@@ -1,14 +1,14 @@
 {
   "files": {
-    "main.css": "/static/css/main.87a4a9f3.css",
-    "main.js": "/static/js/main.91feba3d.js",
+    "main.css": "/static/css/main.e63c43bf.css",
+    "main.js": "/static/js/main.309c9296.js",
     "static/media/ddf-logo.png": "/static/media/ddf-logo.dc0b53ca30d948382684.png",
     "index.html": "/index.html",
-    "main.87a4a9f3.css.map": "/static/css/main.87a4a9f3.css.map",
-    "main.91feba3d.js.map": "/static/js/main.91feba3d.js.map"
+    "main.e63c43bf.css.map": "/static/css/main.e63c43bf.css.map",
+    "main.309c9296.js.map": "/static/js/main.309c9296.js.map"
   },
   "entrypoints": [
-    "static/css/main.87a4a9f3.css",
-    "static/js/main.91feba3d.js"
+    "static/css/main.e63c43bf.css",
+    "static/js/main.309c9296.js"
   ]
 }

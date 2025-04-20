@@ -1,33 +1,33 @@
 .member-info-container {
-  padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    margin-top:50px;
 }
 
 .member-info-container h1 {
-  text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
   color: #333;
 }
 
 .member-table {
   width: 100%;
   border-collapse: collapse;
-  background-color: white;
+  margin-bottom: 20px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .member-table th,
 .member-table td {
-  padding: 12px;
-  text-align: left;
+  padding: 12px 15px;
+  text-align: center;
   border-bottom: 1px solid #ddd;
 }
 
 .member-table th {
   background-color: #f8f9fa;
   font-weight: 600;
-  color: #333;
+  color: #495057;
 }
 
 .member-table tr:hover {
@@ -37,7 +37,7 @@
 .loading {
   text-align: center;
   padding: 20px;
-  font-size: 18px;
+  font-size: 1.2rem;
   color: #666;
 }
 
@@ -45,17 +45,45 @@
   text-align: center;
   padding: 20px;
   color: #dc3545;
-  font-size: 18px;
+  font-size: 1.2rem;
 }
 
+/* 반응형 스타일 */
 @media (max-width: 768px) {
+  .member-info-container {
+    padding: 1px;
+  }
+  
   .member-table {
-    display: block;
-    overflow-x: auto;
+    font-size: 0.9rem;
   }
   
   .member-table th,
   .member-table td {
-    min-width: 120px;
+    padding: 10px;
+  }
+}
+
+@media (max-width: 576px) {
+  .member-info-container {
+    padding: 10px;
+  }
+  
+  .member-table {
+    font-size: 0.8rem;
+  }
+  
+  .member-table th,
+  .member-table td {
+    padding: 8px;
+  }
+  
+  /* 모바일에서 테이블을 가로 스크롤 가능하게 설정 */
+  .member-info-container {
+    overflow-x: auto;
+  }
+  
+  .member-table {
+    min-width: 500px; /* 테이블의 최소 너비 설정 */
   }
 } 

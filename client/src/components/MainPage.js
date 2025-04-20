@@ -151,7 +151,7 @@ function MainPage() {
 
       <div className="video-section">
         <div className="video-title">
-          드럼놀이터 영상
+          놀이터 영상
           <Link to="/video-upload">더보기 &gt;</Link>
         </div>
         <div className="video-grid">

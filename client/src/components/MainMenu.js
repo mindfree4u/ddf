@@ -79,6 +79,13 @@ function MainMenu({ isAdmin }) {
     setShowSubmenu(!showSubmenu);
   };
 
+  // 관리자 메뉴 클릭 시 서브메뉴 닫기
+  const handleAdminMenuClick = (path) => {
+    navigate(path);
+    setIsMenuOpen(false);
+    setShowSubmenu(false);
+  };
+
   // 현재 로그인한 사용자의 이름 가져오기
   const userName = auth.currentUser?.displayName || auth.currentUser?.email || '사용자';
 
@@ -123,7 +130,7 @@ function MainMenu({ isAdmin }) {
                 className={`nav-link ${location.pathname === '/video-upload' ? 'active' : ''}`}
                 onClick={() => handleMenuClick('/video-upload')}
               >
-                드럼놀이터 영상
+                놀이터 영상
               </Link>
             </li>
             <li className="nav-item">
@@ -148,7 +155,7 @@ function MainMenu({ isAdmin }) {
               <li className="admin-menu">
                 <span>관리자 메뉴</span>
                 <ul className="admin-dropdown">
-                  <li><Link to="/member-info" onClick={() => setShowSubmenu(false)}>회원관리</Link></li>
+                  <li><Link to="/member-info" onClick={() => handleAdminMenuClick('/member-info')}>회원관리</Link></li>
                 </ul>
               </li>
             )}
@@ -164,8 +171,8 @@ function MainMenu({ isAdmin }) {
                   </span>
                   {showSubmenu && (
                     <div className="submenu">
-                      <Link to="/profile" className="submenu-item" onClick={() => setShowSubmenu(false)}>회원정보 수정</Link>
-                      <Link to="/my-reservations" className="submenu-item" onClick={() => setShowSubmenu(false)}>예약현황</Link>
+                      <Link to="/profile" className="submenu-item" onClick={() => handleMenuClick('/profile')}>개인정보 수정</Link>
+                      <Link to="/my-reservations" className="submenu-item" onClick={() => handleMenuClick('/my-reservations')}>예약현황</Link>
                       <button onClick={handleLogout} className="logout-button">
                         로그아웃
                       </button>

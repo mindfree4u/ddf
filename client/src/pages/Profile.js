@@ -127,7 +127,7 @@ const Profile = () => {
 
   return (
     <div className="profile-container">
-      <h1>회원정보 수정</h1>
+      <h1>개인정보 수정</h1>
       
       {error && <div className="error-message">{error}</div>}
       {success && <div className="success-message">{success}</div>}

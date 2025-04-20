@@ -143,7 +143,7 @@ function VideoUpload() {
 
   return (
     <div className="video-upload-container">
-      <h2>드럼놀이터 영상</h2>
+      <h2>놀이터 영상</h2>
       
       {isAdmin && (
         <form onSubmit={handleSubmit} className="video-upload-form">
