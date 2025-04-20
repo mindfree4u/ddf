@@ -12,6 +12,8 @@ function MainMenu({ isAdmin }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const menuRef = useRef(null);
+  const [showSubmenu, setShowSubmenu] = useState(false);
+  const submenuRef = useRef(null);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -22,6 +24,9 @@ function MainMenu({ isAdmin }) {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
         setIsMenuOpen(false);
+      }
+      if (submenuRef.current && !submenuRef.current.contains(event.target)) {
+        setShowSubmenu(false);
       }
     };
 
@@ -67,6 +72,10 @@ function MainMenu({ isAdmin }) {
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
+  };
+
+  const toggleSubmenu = () => {
+    setShowSubmenu(!showSubmenu);
   };
 
   // 현재 로그인한 사용자의 이름 가져오기
@@ -147,11 +156,20 @@ function MainMenu({ isAdmin }) {
           <div className="nav-user">
             {isLoggedIn ? (
               <>
-                <div className="user-info">
-                  <span className="user-name">{userName}</span>
-                  <button onClick={handleLogout} className="logout-button">
-                    로그아웃
-                  </button>
+                <div className="user-info" ref={submenuRef}>
+                  <span className="user-name" onClick={toggleSubmenu}>
+                    {userName}
+                    <span className="dropdown-arrow">▼</span>
+                  </span>
+                  {showSubmenu && (
+                    <div className="submenu">
+                      <Link to="/profile" className="submenu-item">회원정보 수정</Link>
+                      <Link to="/my-reservations" className="submenu-item">예약현황</Link>
+                      <button onClick={handleLogout} className="logout-button">
+                        로그아웃
+                      </button>
+                    </div>
+                  )}
                 </div>
               </>
             ) : (

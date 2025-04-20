@@ -19,6 +19,8 @@ import Location from './components/Location';
 import Layout from './components/Layout';
 import MainMenu from './components/MainMenu';
 import MemberInfo from './pages/MemberInfo';
+import Profile from './pages/Profile';
+import MyReservations from './pages/MyReservations';
 import './App.css';
 
 function PrivateRoute({ children }) {
@@ -94,15 +96,15 @@ function App() {
   }, []);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div className="loading">Loading...</div>;
   }
 
   return (
     <Router>
       <Layout isAdmin={isAdmin}>
         <Routes>
-          <Route path="/login" element={!user ? <Login /> : <Navigate to="/reservation" />} />
-          <Route path="/signup" element={!user ? <Signup /> : <Navigate to="/reservation" />} />
+          <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />
+          <Route path="/signup" element={!user ? <Signup /> : <Navigate to="/" />} />
           <Route path="/reservation" element={user ? <ReservationForm /> : <Navigate to="/login" />} />
           <Route path="/main" element={<MainPage />} />
           <Route path="/introduction" element={<Introduction />} />
@@ -111,7 +113,9 @@ function App() {
           <Route path="/board/post/:id" element={<PostDetail />} />
           <Route path="/my-page" element={<MyPage />} />
           <Route path="/location" element={<Location />} />
-          <Route path="/member-info" element={isAdmin ? <MemberInfo /> : <Navigate to="/reservation" />} />
+          <Route path="/profile" element={user ? <Profile /> : <Navigate to="/login" />} />
+          <Route path="/my-reservations" element={user ? <MyReservations /> : <Navigate to="/login" />} />
+          <Route path="/member-info" element={user && isAdmin ? <MemberInfo /> : <Navigate to="/" />} />
           <Route path="/" element={<Navigate to="/reservation" />} />
         </Routes>
         <Footer />
