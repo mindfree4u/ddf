@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { collection, getDocs, orderBy, query, limit } from 'firebase/firestore';
 import { db } from '../firebase';
+import { convertFromRaw, EditorState } from 'draft-js';
 import ddfLogo from '../assets/ddf-logo.png';
 import './MainPage.css';
 
@@ -14,6 +15,24 @@ function MainPage() {
     fetchPosts();
     fetchVideos();
   }, []);
+
+  // Draft.js content를 일반 텍스트로 변환하는 함수
+  const getPlainText = (content) => {
+    try {
+      if (typeof content === 'string') {
+        const contentJSON = JSON.parse(content);
+        const contentState = convertFromRaw(contentJSON);
+        return contentState.getPlainText();
+      } else if (content && content.blocks) {
+        const contentState = convertFromRaw(content);
+        return contentState.getPlainText();
+      }
+      return '';
+    } catch (e) {
+      console.error('Error parsing content:', e);
+      return typeof content === 'string' ? content : '';
+    }
+  };
 
   const fetchPosts = async () => {
     try {
@@ -42,10 +61,17 @@ function MainPage() {
           }
         }
 
+        // content를 일반 텍스트로 변환
+        const plainContent = getPlainText(data.content);
+        // 내용을 100자로 제한
+        const truncatedContent = plainContent.length > 100 
+          ? plainContent.substring(0, 100) + '...' 
+          : plainContent;
+
         return {
           id: doc.id,
           title: data.title || '',
-          content: data.content || '',
+          content: truncatedContent,
           author: data.userName || '익명',
           date: formattedDate
         };

@@ -116,7 +116,7 @@ function App() {
           <Route path="/profile" element={user ? <Profile /> : <Navigate to="/login" />} />
           <Route path="/my-reservations" element={user ? <MyReservations /> : <Navigate to="/login" />} />
           <Route path="/member-info" element={user && isAdmin ? <MemberInfo /> : <Navigate to="/" />} />
-          <Route path="/" element={<Navigate to="/reservation" />} />
+          <Route path="/" element={<Navigate to="/main" />} />
         </Routes>
         <Footer />
       </Layout>
