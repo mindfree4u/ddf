@@ -43,6 +43,9 @@ function MainMenu({ isAdmin }) {
   const handleLogout = async () => {
     try {
       await signOut(auth);
+      // 로그아웃 시 모든 메뉴 상태 초기화
+      setIsMenuOpen(false);
+      setShowSubmenu(false);
       navigate('/login');
     } catch (error) {
       console.error('로그아웃 중 오류 발생:', error);

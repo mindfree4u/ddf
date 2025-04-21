@@ -1,5 +1,5 @@
 .member-info-container {
-    padding: 20px;
+    padding: 10px;
     max-width: 1200px;
     margin: 0 auto;
     margin-top:50px;
@@ -13,77 +13,157 @@
 .member-table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 20px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+  background-color: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 .member-table th,
 .member-table td {
-  padding: 12px 15px;
-  text-align: center;
+  padding: 3px 15px;
+  text-align: left;
   border-bottom: 1px solid #ddd;
 }
 
 .member-table th {
-  background-color: #f8f9fa;
-  font-weight: 600;
-  color: #495057;
+  background-color: #f5f5f5;
+  font-weight: bold;
 }
 
 .member-table tr:hover {
-  background-color: #f5f5f5;
+  background-color: #f9f9f9;
 }
 
 .loading {
   text-align: center;
   padding: 20px;
-  font-size: 1.2rem;
+  font-size: 1.2em;
   color: #666;
 }
 
 .error {
   text-align: center;
   padding: 20px;
-  color: #dc3545;
-  font-size: 1.2rem;
+  color: #ff0000;
+  background-color: #ffe6e6;
+  border-radius: 4px;
+  margin: 20px 0;
+}
+
+.admin-toggle-button {
+  padding: 4px 8px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.admin-toggle-button.admin {
+  background-color: #ff4444;
+  color: white;
+}
+
+.admin-toggle-button.admin:hover {
+  background-color: #cc0000;
+}
+
+.admin-toggle-button.not-admin {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.admin-toggle-button.not-admin:hover {
+  background-color: #45a049;
+}
+
+.admin-toggle-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+  opacity: 0.7;
 }
 
 /* 반응형 스타일 */
 @media (max-width: 768px) {
   .member-info-container {
-    padding: 1px;
+    width: 100%;
+    padding: 3px;
+    margin-top: 30px;
   }
   
   .member-table {
-    font-size: 0.9rem;
+    font-size: 12px;
   }
   
   .member-table th,
   .member-table td {
-    padding: 10px;
+    /* padding: 8px 4px; */
+    line-height: 0.9;
+    text-align:center;
+  }
+
+  .admin-toggle-button {
+    padding: 2px 2px;
+    font-size: 0.85rem;
   }
 }
 
 @media (max-width: 576px) {
   .member-info-container {
-    padding: 10px;
+    /* padding: 10px; */
+    margin-top: 50px;
   }
   
   .member-table {
-    font-size: 0.8rem;
+    font-size: 0.7rem;
   }
   
   .member-table th,
   .member-table td {
-    padding: 8px;
+    padding: 1px 1px;
+    line-height: 1.1;
+  }
+
+  .member-info-container h1 {
+    font-size: 1.3rem;
+    margin-bottom: 15px;
+    /* padding-left: 5px; */
+  }
+
+  /* 각 열의 너비 조정 */
+  .member-table th:nth-child(1),
+  .member-table td:nth-child(1) { /* 아이디 */
+    width: 15%;
   }
   
-  /* 모바일에서 테이블을 가로 스크롤 가능하게 설정 */
-  .member-info-container {
-    overflow-x: auto;
+  .member-table th:nth-child(2),
+  .member-table td:nth-child(2) { /* 이메일 */
+    width: 25%;
   }
   
-  .member-table {
-    min-width: 500px; /* 테이블의 최소 너비 설정 */
+  .member-table th:nth-child(3),
+  .member-table td:nth-child(3) { /* 이름 */
+    width: 12%;
+  }
+  
+  .member-table th:nth-child(4),
+  .member-table td:nth-child(4) { /* 가입일 */
+    width: 18%;
+  }
+  
+  .member-table th:nth-child(5),
+  .member-table td:nth-child(5) { /* 관리자 여부 */
+    width: 12%;
+  }
+  
+  .member-table th:nth-child(6),
+  .member-table td:nth-child(6) { /* 관리자 권한 수정 */
+    width: 14%
+  }
+
+  .admin-toggle-button {
+    padding: 4px 8px;
+    font-size: 0.75rem;
   }
 } 
