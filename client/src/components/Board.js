@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { collection, addDoc, getDocs, query, orderBy, deleteDoc, doc, getDoc, Timestamp } from 'firebase/firestore';
+import { collection, addDoc, getDocs, query, orderBy, deleteDoc, doc, getDoc, Timestamp, updateDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase';
 import { useNavigate } from 'react-router-dom';
 import './Board.css';
@@ -11,6 +11,7 @@ function Board() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [editingPostId, setEditingPostId] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -55,6 +56,21 @@ function Board() {
     }
   };
 
+  const handleEdit = async (postId) => {
+    try {
+      const postDoc = await getDoc(doc(db, 'posts', postId));
+      if (postDoc.exists()) {
+        const postData = postDoc.data();
+        setTitle(postData.title);
+        setContent(postData.content);
+        setEditingPostId(postId);
+      }
+    } catch (error) {
+      console.error('Error fetching post:', error);
+      setError('게시글을 불러오는 중 오류가 발생했습니다.');
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -87,21 +103,39 @@ function Board() {
         content,
         authorId: auth.currentUser.uid,
         authorName: userData.userName || userData.userId || '관리자',
-        createdAt: Timestamp.now()
+        updatedAt: Timestamp.now()
       };
 
-      await addDoc(collection(db, 'posts'), postData);
+      if (editingPostId) {
+        // 수정 모드
+        await updateDoc(doc(db, 'posts', editingPostId), {
+          ...postData,
+          lastModified: Timestamp.now()
+        });
+      } else {
+        // 새 글 작성 모드
+        postData.createdAt = Timestamp.now();
+        await addDoc(collection(db, 'posts'), postData);
+      }
       
       setTitle('');
       setContent('');
+      setEditingPostId(null);
       
       fetchPosts();
     } catch (error) {
-      console.error('Error creating post:', error);
-      setError('게시글 작성 중 오류가 발생했습니다.');
+      console.error('Error saving post:', error);
+      setError(editingPostId ? '게시글 수정 중 오류가 발생했습니다.' : '게시글 작성 중 오류가 발생했습니다.');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCancel = () => {
+    setTitle('');
+    setContent('');
+    setError('');
+    setEditingPostId(null);
   };
 
   const handleDelete = async (postId) => {
@@ -159,7 +193,7 @@ function Board() {
       
       {isAdmin && (
         <div className="post-form-container">
-          <h3>새 게시글 작성</h3>
+          <h3>{editingPostId ? '게시글 수정' : '새 게시글 작성'}</h3>
           <form onSubmit={handleSubmit} className="post-form">
             <div className="form-group">
               <label htmlFor="title">제목</label>
@@ -187,13 +221,23 @@ function Board() {
             
             {error && <div className="error-message">{error}</div>}
             
+            <div className="form-actions">
             <button 
-              type="submit" 
-              className="submit-button"
-              disabled={loading}
-            >
-              {loading ? '작성 중...' : '게시글 작성'}
-            </button>
+                type="submit" 
+                className="submit-button"
+                disabled={loading}
+              >
+                {loading ? '저장 중...' : (editingPostId ? '수정' : '등록')}
+              </button>
+              <button 
+                type="button" 
+                className="cancel-button"
+                onClick={handleCancel}
+              >
+                취소
+              </button>
+
+            </div>
           </form>
         </div>
       )}
@@ -229,7 +273,13 @@ function Board() {
                     <td>{post.authorName}</td>
                     <td>{formatDate(post.createdAt)}</td>
                     {isAdmin && (
-                      <td>
+                      <td className="action-buttons">
+                        <button 
+                          className="edit-button"
+                          onClick={() => handleEdit(post.id)}
+                        >
+                          수정
+                        </button>
                         <button 
                           className="delete-button"
                           onClick={() => handleDelete(post.id)}

@@ -4,7 +4,7 @@
   padding: 20px;
   margin-top: 40px;
   padding-bottom: 50px;
-  text-align: ;
+  text-align: left;
   /* margin-top: 5px; */
 }
 
@@ -63,12 +63,12 @@
   padding: 10px;
   border: 1px solid #ddd;
   border-radius: 4px;
-  font-size: 16px;
+  font-size: 14px;
 }
 
 textarea.form-control {
   resize: vertical;
-  min-height: 100px;
+  min-height: 350px;
 }
 
 .error-message {
@@ -88,6 +88,8 @@ textarea.form-control {
   font-size: 16px;
   cursor: pointer;
   transition: background-color 0.2s;
+  height: 44px;
+  line-height: 24px;
 }
 
 .submit-button:hover {
@@ -189,4 +191,54 @@ textarea.form-control {
   .posts-table td {
     padding: 8px;
   }
+}
+
+.form-actions {
+  /* display: flex; */
+  /* display:flex; */
+  gap: 10px;
+  /* justify-content: flex-end; */
+  margin-top: 5px;
+  align-items: center;
+}
+
+.cancel-button {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  height: 44px;
+  line-height: 24px;
+}
+
+.cancel-button:hover {
+  background-color: #5a6268;
+}
+
+.edit-button {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-right: 5px;
+}
+
+.edit-button:hover {
+  background-color: #218838;
+}
+
+.action-buttons {
+  /* display: flex; */
+  flex:1;
+  flex-direction: row;
+  gap: 5px;
+  /* justify-content: flex-start; */
 } 
