@@ -30,7 +30,7 @@ function Introduction() {
             <img src="/images/program/adult-drum.jpg" alt="성인 취미반" />
           </div>
           <h3>성인 취미반</h3>
-          <p>실력제한없게 누구나 드럼연주<br />연주녹음, 장작활동, 드럼믹싱동</p>
+          <p>쉽고 재미있게 누구나 드럼연주<br />연주녹음, 창작활동, 드럼믹싱 등</p>
         </section>
 
         <section className="program-section">
@@ -46,7 +46,7 @@ function Introduction() {
             <img src="/images/program/pick-drum.jpg" alt="꼭 집어 드럼" />
           </div>
           <h3>꼭 집어 드럼</h3>
-          <p>내가 원하는 곡으로 시작하는<br />드럼 연행에 참여하세요!</p>
+          <p>내가 원하는 곡으로 시작하는<br />드럼 여행에 함께하세요!</p>
         </section>
 
         <section className="program-section">
