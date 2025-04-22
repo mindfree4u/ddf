@@ -53,7 +53,7 @@ function Login() {
 
   return (
     <div className="login-container">
-      <h2>드럼 연습실 예약 시스템</h2>
+      <h2>드럼놀이터 예약 시스템</h2>
       <form onSubmit={handleSubmit} className="login-form">
         <div className="form-group">
           <label htmlFor="userId">아이디</label>
