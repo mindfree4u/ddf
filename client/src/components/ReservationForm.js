@@ -9,6 +9,7 @@ import './ReservationForm.css';
 function ReservationForm() {
   const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState(new Date());
+
   const [reservations, setReservations] = useState({});
   const [reservationDetails, setReservationDetails] = useState({});
   const [reservationIds, setReservationIds] = useState({});
@@ -363,7 +364,8 @@ function ReservationForm() {
 
   const formatDateForDisplay = (date) => {
     // 시간대를 고려한 날짜 계산
-    const localDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
+    const localDate = new Date(date.getTime());
+    // const localDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
     const year = localDate.getFullYear();
     const month = String(localDate.getMonth() + 1).padStart(2, '0');
     const day = String(localDate.getDate()).padStart(2, '0');
@@ -394,6 +396,7 @@ function ReservationForm() {
 
   const getReservationText = (timeSlot, room) => {
     const localDate = new Date(selectedDate.getTime() - (selectedDate.getTimezoneOffset() * 60000));
+    // const localDate = new Date(selectedDate.getTime());
     const dateStr = localDate.toISOString().split('T')[0];
     const reservationKey = `${dateStr}_${timeSlot}_${room}`;
     
