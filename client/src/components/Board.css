@@ -1,13 +1,14 @@
 .board-container {
+  display: flex;
+  flex-direction: column;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 20px 0;
   margin-top: 40px;
   padding-bottom: 50px;
   text-align: left;
   /* margin-top: 5px; */
 }
-
 
 .post-detail-container h2 {
   padding-top: 50px;
