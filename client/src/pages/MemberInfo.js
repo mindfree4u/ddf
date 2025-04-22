@@ -3,6 +3,19 @@ import { collection, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import './MemberInfo.css';
 
+// 회원 등급 정의
+const MEMBER_ROLES = {
+  ADMIN: 'admin',
+  REGULAR: 'regular',
+  GUEST: 'guest'
+};
+
+const ROLE_LABELS = {
+  [MEMBER_ROLES.ADMIN]: '관리자',
+  [MEMBER_ROLES.REGULAR]: '정회원',
+  [MEMBER_ROLES.GUEST]: '비회원'
+};
+
 const MemberInfo = () => {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -18,7 +31,9 @@ const MemberInfo = () => {
       const querySnapshot = await getDocs(collection(db, 'users'));
       const membersList = querySnapshot.docs.map(doc => ({
         id: doc.id,
-        ...doc.data()
+        ...doc.data(),
+        role: doc.data().isAdmin ? MEMBER_ROLES.ADMIN : 
+              doc.data().role || MEMBER_ROLES.GUEST
       }));
       setMembers(membersList);
       setLoading(false);
@@ -29,22 +44,25 @@ const MemberInfo = () => {
     }
   };
 
-  const handleAdminToggle = async (memberId, currentAdminStatus) => {
+  const handleRoleChange = async (memberId, newRole) => {
     if (updating) return;
     
     try {
       setUpdating(true);
       const userRef = doc(db, 'users', memberId);
+      
+      // 새로운 역할에 따라 isAdmin 값도 함께 업데이트
       await updateDoc(userRef, {
-        isAdmin: !currentAdminStatus
+        role: newRole,
+        isAdmin: newRole === MEMBER_ROLES.ADMIN
       });
       
       // 업데이트 후 회원 목록 새로고침
       await fetchMembers();
       
     } catch (err) {
-      console.error('Error updating admin status:', err);
-      alert('관리자 권한 수정 중 오류가 발생했습니다.');
+      console.error('Error updating member role:', err);
+      alert('회원 등급 수정 중 오류가 발생했습니다.');
     } finally {
       setUpdating(false);
     }
@@ -63,8 +81,8 @@ const MemberInfo = () => {
             <th>이메일</th>
             <th>이름</th>
             <th>가입일</th>
-            <th>관리자 여부</th>
-            <th>권한 수정</th>
+            {/* <th>회원 등급</th> */}
+            <th>등급 수정</th>
           </tr>
         </thead>
         <tbody>
@@ -74,15 +92,20 @@ const MemberInfo = () => {
               <td>{member.email}</td>
               <td>{member.name || '-'}</td>
               <td>{member.createdAt ? new Date(member.createdAt.seconds * 1000).toLocaleDateString() : '-'}</td>
-              <td>{member.isAdmin ? '예' : '아니오'}</td>
+              {/* <td>{ROLE_LABELS[member.role] || '비회원'}</td> */}
               <td>
-                <button 
-                  className={`admin-toggle-button ${member.isAdmin ? 'admin' : 'not-admin'}`}
-                  onClick={() => handleAdminToggle(member.id, member.isAdmin)}
+                <select
+                  className={`role-select ${member.role}`}
+                  value={member.role}
+                  onChange={(e) => handleRoleChange(member.id, e.target.value)}
                   disabled={updating}
                 >
-                  {member.isAdmin ? '관리자 해제' : '관리자 지정'}
-                </button>
+                  {Object.entries(ROLE_LABELS).map(([value, label]) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
               </td>
             </tr>
           ))}
@@ -92,4 +115,4 @@ const MemberInfo = () => {
   );
 };
 
-export default MemberInfo; 
+export default MemberInfo;

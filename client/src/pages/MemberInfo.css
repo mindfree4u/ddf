@@ -167,3 +167,119 @@
     font-size: 0.75rem;
   }
 } 
+.role-select {
+  padding: 4px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+  cursor: pointer;
+  font-size: 14px;
+  width: 100px;
+}
+
+.role-select.admin {
+  background-color: #ff4444;
+  color: white;
+  border-color: #cc0000;
+}
+
+.role-select.regular {
+  background-color: #4CAF50;
+  color: white;
+  border-color: #45a049;
+}
+
+.role-select.guest {
+  background-color: #666;
+  color: white;
+  border-color: #444;
+}
+
+.role-select:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+@media (max-width: 576px) {
+  .role-select {
+    padding: 2px 4px;
+    font-size: 0.75rem;
+    width: 80px;
+  }
+}
+
+.role-select option[value="admin"] {
+  background-color: #ff4444;
+  color: white;
+}
+
+.role-select option[value="regular"] {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.role-select option[value="guest"] {
+  background-color: #666;
+  color: white;
+}
+
+/* 선택된 상태에 따른 select 박스 스타일 */
+.role-select.admin {
+  background-color: #ff4444;
+  color: white;
+  border-color: #cc0000;
+  text-align: center;
+  width: 95%;
+  font-size: 11px;;
+}
+
+.role-select.regular {
+  background-color: #4CAF50;
+  color: white;
+  border-color: #45a049;
+  text-align: center;
+  width: 95%;
+  font-size: 11px;;
+}
+
+.role-select.guest {
+  background-color: #666;
+  color: white;
+  border-color: #444;
+  text-align: center;
+  width: 95%;
+  font-size: 11px;;
+}
+
+/* select 박스가 열렸을 때의 스타일 */
+.role-select:focus {
+  outline: none;
+  box-shadow: 0 0 5px rgba(0,0,0,0.2);
+}
+
+/* select 박스의 화살표 커스터마이징 */
+.role-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 16px;
+  padding-right: 30px;
+}
+
+/* Firefox에서 화살표 숨기기 */
+.role-select::-ms-expand {
+  display: none;
+}
+
+/* 모바일 대응 */
+@media (max-width: 576px) {
+  .role-select {
+    padding-right: 25px;
+    background-size: 12px;
+    background-position: right 6px center;
+  }
+}
