@@ -1,0 +1,14 @@
+{
+  "files": {
+    "main.css": "/static/css/main.5a137cb6.css",
+    "main.js": "/static/js/main.21088857.js",
+    "static/media/ddf-logo.png": "/static/media/ddf-logo.dc0b53ca30d948382684.png",
+    "index.html": "/index.html",
+    "main.5a137cb6.css.map": "/static/css/main.5a137cb6.css.map",
+    "main.21088857.js.map": "/static/js/main.21088857.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.5a137cb6.css",
+    "static/js/main.21088857.js"
+  ]
+}
