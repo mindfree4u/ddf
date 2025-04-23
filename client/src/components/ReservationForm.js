@@ -36,7 +36,8 @@ function ReservationForm() {
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
-        checkAdminStatus();
+        // checkAdminStatus();    
+        setIsAdmin(true);    
       } else {
         setIsAdmin(false);
       }
@@ -52,7 +53,9 @@ function ReservationForm() {
         if (userDoc.exists()) {
           const userData = userDoc.data();
           // 관리자 확인 로직 수정 - 실제 데이터베이스 구조에 맞게 조정
-          setIsAdmin(userData.isAdmin === true || userData.role === 'admin' || userData.userId === 'admin');
+          console.log('userData:', userData);
+          console.log('userData.isAdmin:', userData.isAdmin);
+          setIsAdmin(userData.isAdmin === true);
         }
       } catch (error) {
         console.error('Error checking admin status:', error);
@@ -592,6 +595,7 @@ function ReservationForm() {
       </div>
 
       {/* 작업 선택 모달 */}
+      
       {showActionModal && (
         <div className="action-modal-overlay">
           <div className="action-modal">

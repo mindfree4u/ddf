@@ -47,7 +47,7 @@ function App() {
             console.log('User ID:', userData.userId);
             
             // role이 'admin'인 경우 관리자로 설정
-            const isUserAdmin = userData.role === 'admin';
+            const isUserAdmin = userData.isAdmin === true || userData.role === 'admin' || userData.userId === 'admin';
             console.log('Is admin check result:', isUserAdmin);
             setIsAdmin(isUserAdmin);
             
