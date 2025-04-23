@@ -31,10 +31,29 @@ function Login() {
       }
 
       const userDoc = querySnapshot.docs[0];
-      const email = userDoc.data().email;
+      console.log('Found user document:', userDoc.id);
+      console.log('Full user data from Firestore:', userDoc.data());
+      
+      const userData = userDoc.data();
+      const email = userData.email;
+      const name = userData.name;
+      const role = userData.role;
+      const isAdmin = userData.isAdmin;
+
+      console.log('=== User Data from Firestore ===');
+      console.log('Document ID:', userDoc.id);
+      console.log('Email:', email);
+      console.log('Name:', name);
+      console.log('Role:', role);
+      console.log('Is Admin:', isAdmin);
+      console.log('User ID:', userId);
+      console.log('==============================');
 
       // Now sign in with email and password
-      await signInWithEmailAndPassword(auth, email, password);
+      console.log('Attempting to sign in with:', email, password);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      console.log('Firebase Auth User:', userCredential.user);
+
       // 로그인 성공 후 저장된 리다이렉트 경로 확인
       const redirectPath = localStorage.getItem('redirectAfterLogin');
       if (redirectPath) {

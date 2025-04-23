@@ -35,6 +35,7 @@ const MemberInfo = () => {
         role: doc.data().isAdmin ? MEMBER_ROLES.ADMIN : 
               doc.data().role || MEMBER_ROLES.GUEST
       }));
+      console.log('MemberInfo()==============: membersList', membersList);
       setMembers(membersList);
       setLoading(false);
     } catch (err) {
@@ -81,7 +82,7 @@ const MemberInfo = () => {
             <th>이메일</th>
             <th>이름</th>
             <th>가입일</th>
-            {/* <th>회원 등급</th> */}
+            <th>회원 등급</th>
             <th>등급 수정</th>
           </tr>
         </thead>
@@ -92,7 +93,7 @@ const MemberInfo = () => {
               <td>{member.email}</td>
               <td>{member.name || '-'}</td>
               <td>{member.createdAt ? new Date(member.createdAt.seconds * 1000).toLocaleDateString() : '-'}</td>
-              {/* <td>{ROLE_LABELS[member.role] || '비회원'}</td> */}
+              <td className={`role-display ${member.role}`}>{ROLE_LABELS[member.role] || '비회원'}</td>
               <td>
                 <select
                   className={`role-select ${member.role}`}

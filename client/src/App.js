@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { onAuthStateChanged, getAuth } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from './firebase';
 import Login from './components/Login';
 import Signup from './components/Signup';
@@ -16,77 +16,54 @@ import PostDetail from './components/PostDetail';
 import MyPage from './components/MyPage';
 import Footer from './components/Footer';
 import Location from './components/Location';
-import Layout from './components/Layout';
 import MainMenu from './components/MainMenu';
 import MemberInfo from './pages/MemberInfo';
 import Profile from './pages/Profile';
 import MyReservations from './pages/MyReservations';
 import './App.css';
 
-function PrivateRoute({ children }) {
-  const [isAuthenticated, setIsAuthenticated] = React.useState(false);
-  const [isAdmin, setIsAdmin] = React.useState(false);
-  const [loading, setLoading] = React.useState(true);
+function App() {
+  const [user, setUser] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [loading, setLoading] = useState(true);
   const auth = getAuth();
 
-  React.useEffect(() => {
+  useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      setIsAuthenticated(!!user);
+      console.log('Auth state changed.');
+      console.log('User UID:', user?.uid);
+      setUser(user);
+      
       if (user) {
         try {
-          const userDoc = await getDoc(doc(db, 'users', user.uid));
-          if (userDoc.exists()) {
-            const userData = userDoc.data();
-            // userId가 'admin'이거나 isAdmin이 true인 경우 관리자로 처리
-            setIsAdmin(userData.userId === 'admin' || userData.isAdmin === true);
+          // 먼저 email로 userId 찾기
+          const userQuery = query(collection(db, 'users'), where('email', '==', user.email));
+          const querySnapshot = await getDocs(userQuery);
+          
+          if (!querySnapshot.empty) {
+            const userData = querySnapshot.docs[0].data();
+            console.log('Full user data:', userData);
+            console.log('User role:', userData.role);
+            console.log('User ID:', userData.userId);
+            
+            // role이 'admin'인 경우 관리자로 설정
+            const isUserAdmin = userData.role === 'admin';
+            console.log('Is admin check result:', isUserAdmin);
+            setIsAdmin(isUserAdmin);
+            
+            // 디버깅을 위한 타입 체크
+            console.log('Role type:', typeof userData.role);
+            console.log('Role value exact:', `'${userData.role}'`);
+          } else {
+            console.log('No user document found for email:', user.email);
+            setIsAdmin(false);
           }
         } catch (error) {
           console.error('Error checking admin status:', error);
           setIsAdmin(false);
         }
       } else {
-        setIsAdmin(false);
-      }
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  if (loading) {
-    return <div className="loading">로딩 중...</div>;
-  }
-
-  return isAuthenticated ? (
-    <div className="app-layout">
-      <MainMenu isAdmin={isAdmin} />
-      <div className="content-wrapper">
-        {children}
-      </div>
-    </div>
-  ) : (
-    <Navigate to="/login" />
-  );
-}
-
-function App() {
-  const [user, setUser] = useState(null);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(getAuth(), async (user) => {
-      setUser(user);
-      if (user) {
-        const userDoc = await getDoc(doc(db, 'users', user.uid));
-        const userData = userDoc.data();
-        console.log('User data:', userData);
-        
-        // userId가 'admin'이거나 isAdmin이 true인 경우 관리자로 처리
-        const isUserAdmin = userData?.userId === 'admin' || userData?.isAdmin === true;
-        console.log('isAdmin value:', isUserAdmin);
-        setIsAdmin(isUserAdmin);
-      } else {
+        console.log('No user logged in');
         setIsAdmin(false);
       }
       setLoading(false);
@@ -101,25 +78,28 @@ function App() {
 
   return (
     <Router>
-      <Layout isAdmin={isAdmin}>
-        <Routes>
-          <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />
-          <Route path="/signup" element={!user ? <Signup /> : <Navigate to="/" />} />
-          <Route path="/reservation" element={user ? <ReservationForm /> : <Navigate to="/login" />} />
-          <Route path="/main" element={<MainPage />} />
-          <Route path="/introduction" element={<Introduction />} />
-          <Route path="/video-upload" element={<VideoUpload />} />
-          <Route path="/board" element={<Board />} />
-          <Route path="/board/post/:id" element={<PostDetail />} />
-          <Route path="/my-page" element={<MyPage />} />
-          <Route path="/location" element={<Location />} />
-          <Route path="/profile" element={user ? <Profile /> : <Navigate to="/login" />} />
-          <Route path="/my-reservations" element={user ? <MyReservations /> : <Navigate to="/login" />} />
-          <Route path="/member-info" element={user && isAdmin ? <MemberInfo /> : <Navigate to="/" />} />
-          <Route path="/" element={<Navigate to="/main" />} />
-        </Routes>
-        <Footer />
-      </Layout>
+      <div className="app">
+        <MainMenu isAdmin={isAdmin} />
+        <div className="content-wrapper">
+          <Routes>
+            <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />
+            <Route path="/signup" element={!user ? <Signup /> : <Navigate to="/" />} />
+            <Route path="/reservation" element={user ? <ReservationForm isAdmin={isAdmin} /> : <Navigate to="/login" />} />
+            <Route path="/main" element={<MainPage />} />
+            <Route path="/introduction" element={<Introduction />} />
+            <Route path="/video-upload" element={<VideoUpload />} />
+            <Route path="/board" element={<Board />} />
+            <Route path="/board/post/:id" element={<PostDetail />} />
+            <Route path="/my-page" element={<MyPage />} />
+            <Route path="/location" element={<Location />} />
+            <Route path="/profile" element={user ? <Profile /> : <Navigate to="/login" />} />
+            <Route path="/my-reservations" element={user ? <MyReservations /> : <Navigate to="/login" />} />
+            <Route path="/member-info" element={user && isAdmin ? <MemberInfo /> : <Navigate to="/" />} />
+            <Route path="/" element={<Navigate to="/main" />} />
+          </Routes>
+          <Footer />
+        </div>
+      </div>
     </Router>
   );
 }

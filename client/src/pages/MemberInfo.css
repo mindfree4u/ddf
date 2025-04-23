@@ -283,3 +283,55 @@
     background-position: right 6px center;
   }
 }
+
+.role-display {
+  transition: background-color 0.3s ease;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.role-display.admin {
+  background-color: #e3f2fd;
+  color: #1976d2;
+}
+
+.role-display.member {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.role-display.guest {
+  background-color: #fff3e0;
+  color: #e65100;
+}
+
+select {
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+select:hover {
+  border-color: #999;
+}
+
+select:focus {
+  outline: none;
+  border-color: #2196f3;
+  box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+}
+
+@media screen and (max-width: 768px) {
+  select {
+    width: 100%;
+    max-width: 200px;
+  }
+  
+  .role-display {
+    display: inline-block;
+    margin: 2px 0;
+  }
+}
