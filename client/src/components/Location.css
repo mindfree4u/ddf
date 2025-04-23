@@ -1,9 +1,9 @@
 .location-container {
-  padding: 20px;
+  padding: 20px 0;
   max-width: 1200px;
   margin: 0 auto;
-  margin-top: 100px;
-  padding-top: 10px;
+  margin-top: -10px;
+  /* padding-top: 10px; */
 }
 
 .location-content {
@@ -132,7 +132,9 @@
 
   .map {
     flex: 2;
+    width: 100%;
     min-width: 400px;
+    /* max-width: 600px; */
   }
 
   .info-section {
@@ -159,7 +161,7 @@
 
   .map {
     height: 350px;
-    width: 100%;
+    width: 685px;
     min-width: unset;
   }
 
