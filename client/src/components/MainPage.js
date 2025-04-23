@@ -9,12 +9,25 @@ import './MainPage.css';
 function MainPage() {
   const [boardPosts, setBoardPosts] = useState([]);
   const [videos, setVideos] = useState([]);
+  const [videoLimit, setVideoLimit] = useState(window.innerWidth > 768 ? 6 : 4);
   const navigate = useNavigate();
 
   useEffect(() => {
+    const handleResize = () => {
+      const newLimit = window.innerWidth > 768 ? 6 : 4;
+      if (newLimit !== videoLimit) {
+        setVideoLimit(newLimit);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
     fetchPosts();
     fetchVideos();
-  }, []);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [videoLimit]);
 
   // Draft.js content를 일반 텍스트로 변환하는 함수
   const getPlainText = (content) => {
@@ -86,7 +99,7 @@ function MainPage() {
   const fetchVideos = async () => {
     try {
       const videosRef = collection(db, 'videos');
-      const q = query(videosRef, orderBy('createdAt', 'desc'), limit(3));
+      const q = query(videosRef, orderBy('createdAt', 'desc'), limit(videoLimit));
       const querySnapshot = await getDocs(q);
       
       const videoList = querySnapshot.docs.map(doc => {
