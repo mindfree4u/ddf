@@ -93,7 +93,7 @@
   }
   
   .member-info-container h1 {
-    font-size: 1.5rem;
+    font-size: 1.4rem;
     margin-bottom: 15px;
     /* padding-left: 5px; */
   }
@@ -126,7 +126,7 @@
   
   .member-table th,
   .member-table td {
-    padding: 1px 1px;
+    padding: 1px 13px;
     line-height: 1.1;
   }
 
@@ -139,7 +139,7 @@
   /* 각 열의 너비 조정 */
   .member-table th:nth-child(1),
   .member-table td:nth-child(1) { /* 아이디 */
-    width: 15%;
+    width: 13%;
   }
   
   .member-table th:nth-child(2),
@@ -149,7 +149,7 @@
   
   .member-table th:nth-child(3),
   .member-table td:nth-child(3) { /* 이름 */
-    width: 12%;
+    width: 15%;
   }
   
   .member-table th:nth-child(4),
@@ -157,14 +157,15 @@
     width: 18%;
   }
   
-  .member-table th:nth-child(5),
-  .member-table td:nth-child(5) { /* 관리자 여부 */
+  /* 관리자 여부 */
+  /* .member-table th:nth-child(5),
+  .member-table td:nth-child(5) { 
     width: 12%;
-  }
+  } */
   
   .member-table th:nth-child(6),
   .member-table td:nth-child(6) { /* 관리자 권한 수정 */
-    width: 14%
+    width: 12%
   }
 
   .admin-toggle-button {
