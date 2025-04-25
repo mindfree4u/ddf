@@ -392,7 +392,15 @@ function QnABoard({ isAdmin }) {
             required
           />
         </div>
-        
+        <div className="form-group">
+          <input
+            type="file"
+            onChange={handleFileChange}
+            className="form-control"
+            id="file-input"
+          />
+          <small className="file-info">최대 파일 크기: 5MB</small>
+        </div>        
    
         {error && <div className="error-message">{error}</div>}
         
@@ -442,7 +450,7 @@ function QnABoard({ isAdmin }) {
           <p>{selectedPost.content}</p>
           {selectedPost.fileUrl && (
             <div className="attachment">
-              <a href={selectedPost.fileUrl} target="_blank" rel="noopener noreferrer">
+              <a href={selectedPost.fileUrl} download={selectedPost.fileName} rel="noopener noreferrer">
                 📎 {selectedPost.fileName}
               </a>
             </div>

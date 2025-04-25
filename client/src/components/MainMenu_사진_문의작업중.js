@@ -126,15 +126,15 @@ function MainMenu({ isAdmin }) {
                 놀이터 예약
               </Link>
             </li>
-//            <li className="nav-item">
-//              <Link 
-//                to="/playground-photos" 
-//                className={`nav-link ${location.pathname === '/playground-photos' ? 'active' : ''}`}
-//                onClick={() => handleMenuClick('/playground-photos')}
-//</li>              >
-//                놀이터 사진
-//              </Link>
-//            </li>
+            <li className="nav-item">
+              <Link 
+                to="/playground-photos" 
+                className={`nav-link ${location.pathname === '/playground-photos' ? 'active' : ''}`}
+                onClick={() => handleMenuClick('/playground-photos')}
+              >
+                놀이터 사진
+              </Link>
+            </li>
             <li className="nav-item">
               <Link 
                 to="/video-upload" 
