@@ -116,7 +116,7 @@
 
 @media (max-width: 576px) {
   .member-info-container {
-    /* padding: 10px; */
+    padding: 10px;
     margin-top: -10px;
   }
   
@@ -126,12 +126,12 @@
   
   .member-table th,
   .member-table td {
-    padding: 1px 13px;
+    padding: 1px 10px;
     line-height: 1.1;
   }
 
   .member-info-container h1 {
-    font-size: 1.3rem;
+    font-size: 1.0rem;
     margin-bottom: 15px;
     /* padding-left: 5px; */
   }
@@ -169,7 +169,7 @@
   }
 
   .admin-toggle-button {
-    padding: 4px 8px;
+    padding: 4px 5px;
     font-size: 0.75rem;
   }
 } 
@@ -207,13 +207,6 @@
   opacity: 0.7;
 }
 
-@media (max-width: 576px) {
-  .role-select {
-    padding: 2px 4px;
-    font-size: 0.75rem;
-    width: 80px;
-  }
-}
 
 .role-select option[value="admin"] {
   background-color: #ff4444;
@@ -271,9 +264,9 @@
   -moz-appearance: none;
   background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
   background-repeat: no-repeat;
-  background-position: right 8px center;
+  background-position: right 15px center;
   background-size: 16px;
-  padding-right: 30px;
+  padding-right: 25px;
 }
 
 /* Firefox에서 화살표 숨기기 */
@@ -282,20 +275,17 @@
 }
 
 /* 모바일 대응 */
+/*
 @media (max-width: 576px) {
   .role-select {
-    padding-right: 25px;
+    width: 100px;
+    margin-left: -30px;
+    padding: 2px 0;
     background-size: 12px;
     background-position: right 6px center;
   }
 }
-
-.role-display {
-  transition: background-color 0.3s ease;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-weight: 500;
-}
+  */
 
 .role-display.admin {
   background-color: #e3f2fd;
@@ -330,6 +320,7 @@ select:focus {
   box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
 }
 
+/*
 @media screen and (max-width: 768px) {
   select {
     width: 100%;
@@ -341,3 +332,4 @@ select:focus {
     margin: 2px 0;
   }
 }
+*/

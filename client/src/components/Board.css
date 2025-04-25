@@ -1,33 +1,26 @@
-.board-container {
-  display: flex;
-  flex-direction: column;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px 0;
-  margin-top: 10px;
-  padding-bottom: 50px;
-  text-align: left;
-  /* margin-top: 5px; */
-}
-
-.post-detail-container h2 {
-  padding-top: 50px;
-
-}
-
-.board-container h2 {
-  text-align: center;
-  margin-bottom: -30px;
-  color: #333;
-}
-
-.post-detail-content {
-  line-height: 1.6;
-  color: #444;
-  margin-bottom: 2rem;
-  white-space: pre-wrap;
-  text-align: left;
-}
+  .board-container {
+    margin-top: -35px;
+    margin-bottom: 15px;
+    padding: 10px 0;
+    width: 100%;
+  }
+  .board-container h2 {
+    text-align: center;
+    margin-bottom: -40px;
+    color: #333;
+  }
+  
+  .post-detail-content {
+    line-height: 1.6;
+    color: #444;
+    margin-bottom: 2rem;
+    white-space: pre-wrap;
+    /* text-align: left; */
+    font-size: 0.8rem;
+  }
+  .posts-table {
+    font-size: 14px;
+  }
 
 .post-form-container {
   background-color: white;
@@ -45,12 +38,14 @@
 .post-form {
   display: flex;
   flex-direction: column;
+  width:100%;
   gap: 15px;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
+  width:100%;
   gap: 5px;
 }
 
@@ -61,7 +56,7 @@
 }
 
 .form-control {
-  padding: 10px;
+  padding: 10px 0;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 14px;
@@ -69,7 +64,7 @@
 
 textarea.form-control {
   resize: vertical;
-  min-height: 350px;
+  min-height: 50px;
 }
 
 .error-message {
@@ -181,9 +176,9 @@ textarea.form-control {
 
 @media (max-width: 768px) {
   .board-container {
-    margin-top: -25px;
+    margin-top: -35px;
     margin-bottom: 15px;
-    padding: 15px 0;
+    padding: 10px 0;
     width: 100%;
   }
   .board-container h2 {
@@ -261,19 +256,53 @@ textarea.form-control {
 }
 
 .editor-container {
-  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
   border: 1px solid #ddd;
   border-radius: 4px;
   overflow: hidden;
 }
 
 .editor-toolbar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
   padding: 8px;
   background-color: #f8f9fa;
   border-bottom: 1px solid #ddd;
+  width: 100%;
+}
+
+.editor-toolbar > * {
+  margin-right: 8px;
+}
+
+.toolbar-button-group {
   display: flex;
-  gap: 8px;
+  flex-direction: row;
+  gap: 4px;
+}
+
+.editor-toolbar button {
+  padding: 6px 8px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+  min-width: 32px;
+  height: 32px;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
+  color: black;
+}
+
+.editor-toolbar button:hover {
+  background-color: #e9ecef;
+  border-color: #adb5bd;
 }
 
 .toolbar-select {
@@ -284,51 +313,29 @@ textarea.form-control {
   background-color: white;
   cursor: pointer;
   min-width: 100px;
-}
-
-.toolbar-select:hover {
-  border-color: #adb5bd;
+  height: 32px;
 }
 
 .toolbar-divider {
   width: 1px;
   height: 24px;
   background-color: #ddd;
-  margin: 0 4px;
-}
-
-.editor-toolbar button {
-  padding: 6px 8px;
-  background-color: rgb(88, 86, 86);
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: all 0.2s;
-  min-width: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-left: 10px;
-}
-
-.editor-toolbar button:hover {
-  background-color: #e9ecef;
-  border-color: #adb5bd;
+  margin: 0 8px;
 }
 
 .color-picker-container {
   position: relative;
+  display: inline-flex;
 }
 
 .color-button {
   width: 32px;
   height: 32px;
-  padding: 4px !important;
+  padding: 4px;
   border: 1px solid #ddd;
   border-radius: 4px;
   cursor: pointer;
-  position: relative;
+  background-color: #fff;
 }
 
 .color-indicator {
@@ -349,17 +356,15 @@ textarea.form-control {
 
 .align-button {
   font-family: 'Segoe UI Symbol', sans-serif;
-  font-size: 18px !important;
+  font-size: 18px;
   line-height: 1;
-  width: 32px;
-  height: 32px;
-  padding: 0 !important;
-  color: white;
+  color: #333;
+  background-color: #fff;
 }
 
 .align-button.active {
-  background-color: #007bff !important;
-  border-color: #0056b3 !important;
+  background-color: #007bff;
+  border-color: #0056b3;
   color: white;
 }
 
@@ -382,9 +387,11 @@ textarea.form-control {
 }
 
 .editor-content {
-  padding: 16px;
-  min-height: 300px;
-  background-color: white;
+  padding: 10px;
+  min-height: 200px;
+  max-height: 400px;
+  overflow-y: auto;
+  width: 100%;
 }
 
 .DraftEditor-root {

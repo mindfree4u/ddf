@@ -3,33 +3,17 @@ import { collection, addDoc, getDocs, query, orderBy, deleteDoc, doc, getDoc } f
 import { auth, db } from '../firebase';
 import './VideoUpload.css';
 
-function VideoUpload() {
+function VideoUpload({ isAdmin }) {
   const [youtubeUrl, setYoutubeUrl] = useState('');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [videos, setVideos] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    checkAdminStatus();
     fetchVideos();
   }, []);
-
-  const checkAdminStatus = async () => {
-    if (auth.currentUser) {
-      try {
-        const userDoc = await getDoc(doc(db, 'users', auth.currentUser.uid));
-        if (userDoc.exists()) {
-          const userData = userDoc.data();
-          setIsAdmin(userData.userId === 'admin');
-        }
-      } catch (error) {
-        console.error('Error checking admin status:', error);
-      }
-    }
-  };
 
   const fetchVideos = async () => {
     try {
@@ -144,7 +128,6 @@ function VideoUpload() {
   return (
     <div className="video-upload-container">
       <h2>놀이터 영상</h2>
-      
       {isAdmin && (
         <form onSubmit={handleSubmit} className="video-upload-form">
           <div className="form-group">

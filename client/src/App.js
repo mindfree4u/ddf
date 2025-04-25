@@ -11,7 +11,9 @@ import MainPage from './components/MainPage';
 import Introduction from './components/Introduction';
 import ReservationForm from './components/ReservationForm';
 import VideoUpload from './components/VideoUpload';
+import PlaygroundPhotos from './components/PlaygroundPhotos';
 import Board from './components/Board';
+import QnABoard from './components/QnABoard';
 import PostDetail from './components/PostDetail';
 import MyPage from './components/MyPage';
 import Footer from './components/Footer';
@@ -87,8 +89,10 @@ function App() {
             <Route path="/reservation" element={user ? <ReservationForm isAdmin={isAdmin} /> : <Navigate to="/login" />} />
             <Route path="/main" element={<MainPage />} />
             <Route path="/introduction" element={<Introduction />} />
-            <Route path="/video-upload" element={<VideoUpload />} />
-            <Route path="/board" element={<Board />} />
+            <Route path="/video-upload" element={<VideoUpload isAdmin={isAdmin} />} />
+            <Route path="/playground-photos" element={<PlaygroundPhotos isAdmin={isAdmin} />} />
+            <Route path="/board" element={<Board isAdmin={isAdmin} />} />
+            <Route path="/qna" element={<QnABoard isAdmin={isAdmin} />} />
             <Route path="/board/post/:id" element={<PostDetail />} />
             <Route path="/my-page" element={<MyPage />} />
             <Route path="/location" element={<Location />} />

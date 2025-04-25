@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { collection, addDoc, getDocs, query, orderBy, deleteDoc, doc, getDoc, Timestamp, updateDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { auth, db, storage } from '../firebase';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Editor, EditorState, RichUtils, convertToRaw, convertFromRaw, ContentState } from 'draft-js';
 import { SketchPicker } from 'react-color';
 import 'draft-js/dist/Draft.css';
@@ -56,11 +56,10 @@ function getBlockStyle(block) {
   }
 }
 
-function Board() {
+function Board({ isAdmin }) {
   const [posts, setPosts] = useState([]);
   const [title, setTitle] = useState('');
   const [editorState, setEditorState] = useState(EditorState.createEmpty());
-  const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [editingPostId, setEditingPostId] = useState(null);
@@ -108,7 +107,7 @@ function Board() {
         const userDoc = await getDoc(doc(db, 'users', auth.currentUser.uid));
         if (userDoc.exists()) {
           const userData = userDoc.data();
-          setIsAdmin(userData.userId === 'admin');
+          // setIsAdmin(userData.userId === 'admin'); // 이 줄 제거
         }
       } catch (error) {
         console.error('Error checking admin status:', error);
@@ -224,8 +223,7 @@ function Board() {
       return;
     }
 
-    const userDoc = await getDoc(doc(db, 'users', auth.currentUser.uid));
-    if (!userDoc.exists() || userDoc.data().userId !== 'admin') {
+    if (!isAdmin) {
       setError('관리자만 게시글을 작성할 수 있습니다.');
       return;
     }
@@ -240,7 +238,10 @@ function Board() {
     setError('');
 
     try {
-      const userData = userDoc.data();
+      // 사용자 정보 가져오기
+      const userDoc = await getDoc(doc(db, 'users', auth.currentUser.uid));
+      const userData = userDoc.exists() ? userDoc.data() : { userId: '관리자' };
+      
       const rawContent = convertToRaw(contentState);
       
       const postData = {
@@ -361,9 +362,12 @@ function Board() {
   };
 
   const handleDelete = async (postId) => {
-    // userId가 'admin'인지 다시 한번 확인
-    const userDoc = await getDoc(doc(db, 'users', auth.currentUser.uid));
-    if (!userDoc.exists() || userDoc.data().userId !== 'admin') {
+    if (!auth.currentUser) {
+      setError('로그인이 필요합니다.');
+      return;
+    }
+
+    if (!isAdmin) {
       setError('관리자만 게시글을 삭제할 수 있습니다.');
       return;
     }
@@ -482,36 +486,40 @@ function Board() {
 
                   <div className="toolbar-divider"></div>
 
-                  <button type="button" onClick={() => onStyleClick('BOLD')}>
-                    <strong>B</strong>
-                  </button>
-                  <button type="button" onClick={() => onStyleClick('ITALIC')}>
-                    <em>I</em>
-                  </button>
-                  <button type="button" onClick={() => onStyleClick('UNDERLINE')}>
-                    <u>U</u>
-                  </button>
+                  <div className="toolbar-button-group">
+                    <button type="button" onClick={() => onStyleClick('BOLD')}>
+                      <strong>B</strong>
+                    </button>
+                    <button type="button" onClick={() => onStyleClick('ITALIC')}>
+                      <em>I</em>
+                    </button>
+                    <button type="button" onClick={() => onStyleClick('UNDERLINE')}>
+                      <u>U</u>
+                    </button>
+                  </div>
 
                   <div className="toolbar-divider"></div>
 
-                  {ALIGNMENTS.map(align => (
-                    <button
-                      key={align.style}
-                      type="button"
-                      onClick={() => onAlignmentClick(align.style)}
-                      title={align.title}
-                      className={`align-button ${
-                        editorState
-                          .getCurrentContent()
-                          .getBlockForKey(editorState.getSelection().getStartKey())
-                          .getType() === align.style
-                          ? 'active'
-                          : ''
-                      }`}
-                    >
-                      {align.label}
-                    </button>
-                  ))}
+                  <div className="toolbar-button-group">
+                    {ALIGNMENTS.map(align => (
+                      <button
+                        key={align.style}
+                        type="button"
+                        onClick={() => onAlignmentClick(align.style)}
+                        title={align.title}
+                        className={`align-button ${
+                          editorState
+                            .getCurrentContent()
+                            .getBlockForKey(editorState.getSelection().getStartKey())
+                            .getType() === align.style
+                            ? 'active'
+                            : ''
+                        }`}
+                      >
+                        {align.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
                 <div className="editor-content">
                   <Editor

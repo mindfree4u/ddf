@@ -36,7 +36,7 @@ function ReservationForm() {
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
-        // checkAdminStatus();    
+        checkAdminStatus();    
         setIsAdmin(true);    
       } else {
         setIsAdmin(false);

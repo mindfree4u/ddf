@@ -126,7 +126,7 @@ function MainMenu({ isAdmin }) {
                 놀이터 예약
               </Link>
             </li>
-
+          
             <li className="nav-item">
               <Link 
                 to="/video-upload" 
@@ -143,6 +143,15 @@ function MainMenu({ isAdmin }) {
                 onClick={() => handleMenuClick('/board')}
               >
                 게시판
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link 
+                to="/qna" 
+                className={`nav-link ${location.pathname === '/qna' ? 'active' : ''}`}
+                onClick={() => handleMenuClick('/qna')}
+              >
+                문의/답변
               </Link>
             </li>
             <li className="nav-item">

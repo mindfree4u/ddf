@@ -480,8 +480,9 @@ input[type="date"]::-ms-expand {
 
   .reservation-table th,
   .reservation-table td {
-    padding: 3px 1px;
-    font-size: 11px;
+    padding: 3px 0;
+    font-size: 10px;
+    font-weight: 500;
   }
 
   .reservation-table th:first-child,
