@@ -346,6 +346,11 @@ input[type="date"]::-ms-expand {
   color: #333;
 }
 
+.guest-reservation {
+  color: #fff3cd;
+  background-color: yellow !important;  /* 노란색 배경 */
+} 
+
 .type-selector {
   display: inline-block;
   width: 100%;

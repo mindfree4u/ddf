@@ -23,6 +23,7 @@ function ReservationForm() {
   const [selectedReservation, setSelectedReservation] = useState(null);
   const [newUserName, setNewUserName] = useState('');
   const [showNameInput, setShowNameInput] = useState(false);
+  const [isGuestReservationMap, setIsGuestReservationMap] = useState({});
 
   const timeSlots = ['10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00'];
   const rooms = ['Room A', 'Room B', 'Room C', 'Room E'];
@@ -77,18 +78,38 @@ function ReservationForm() {
       const newReservations = {};
       const newReservationDetails = {};
       const newReservationIds = {};
-      
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
+      const newIsGuestReservationMap = {};
+
+      // 예약자 userId별로 role을 조회
+      const userPromises = querySnapshot.docs.map(async (docSnap) => {
+        const data = docSnap.data();
+        if (data.userId) {
+          const userDoc = await getDoc(doc(db, 'users', data.userId));
+          if (userDoc.exists()) {
+            return { userId: data.userId, role: userDoc.data().role };
+          }
+        }
+        return null;
+      });
+      const userResults = await Promise.all(userPromises);
+      const userRoleMap = {};
+      userResults.forEach(result => {
+        if (result) userRoleMap[result.userId] = result.role;
+      });
+
+      querySnapshot.forEach((docSnap) => {
+        const data = docSnap.data();
         const key = `${dateStr}_${data.timeSlot}_${data.room}`;
         newReservations[key] = data.userId;
         newReservationDetails[key] = `${data.type}(${data.userName})`;
-        newReservationIds[key] = doc.id;
+        newReservationIds[key] = docSnap.id;
+        newIsGuestReservationMap[key] = userRoleMap[data.userId] === 'guest';
       });
-      
+
       setReservations(newReservations);
       setReservationDetails(newReservationDetails);
       setReservationIds(newReservationIds);
+      setIsGuestReservationMap(newIsGuestReservationMap);
     } catch (error) {
       console.error('Error fetching reservations:', error);
     }
@@ -386,7 +407,8 @@ function ReservationForm() {
       const type = details.split('(')[0];
       const isAdminReservation = reservations[reservationKey] === auth.currentUser?.uid && isAdmin;
       const isMyReservation = reservations[reservationKey] === auth.currentUser?.uid;
-      return `reserved ${type === '레슨' ? 'lesson' : 'practice'} ${isAdminReservation ? 'admin-reservation' : ''} ${isMyReservation ? 'my-reservation' : ''}`;
+      const isGuestReservation = isGuestReservationMap[reservationKey];
+      return `reserved ${type === '레슨' ? 'lesson' : 'practice'} ${isAdminReservation ? 'admin-reservation' : ''} ${isMyReservation ? 'my-reservation' : ''} ${isGuestReservation ? 'guest-reservation' : ''}`;
     }
     return 'available';
   };
