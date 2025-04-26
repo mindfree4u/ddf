@@ -92,8 +92,8 @@ function MainMenu({ isAdmin }) {
   // 현재 로그인한 사용자의 이름 가져오기
   const userName = auth.currentUser?.displayName || auth.currentUser?.email || '사용자';
 
-  console.log('MainMenu isAdmin:', isAdmin);
-  console.log('MainMenu isAdmin type:', typeof isAdmin);
+  //console.log('MainMenu isAdmin:', isAdmin);
+  //console.log('MainMenu isAdmin type:', typeof isAdmin);
 
   return (
     <nav className="navbar">

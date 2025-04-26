@@ -54,8 +54,8 @@ function App() {
             setIsAdmin(isUserAdmin);
             
             // 디버깅을 위한 타입 체크
-            console.log('Role type:', typeof userData.role);
-            console.log('Role value exact:', `'${userData.role}'`);
+//            console.log('Role type:', typeof userData.role);
+//            console.log('Role value exact:', `'${userData.role}'`);
           } else {
             console.log('No user document found for email:', user.email);
             setIsAdmin(false);

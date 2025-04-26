@@ -54,8 +54,8 @@ function ReservationForm() {
         if (userDoc.exists()) {
           const userData = userDoc.data();
           // 관리자 확인 로직 수정 - 실제 데이터베이스 구조에 맞게 조정
-          console.log('userData:', userData);
-          console.log('userData.isAdmin:', userData.isAdmin);
+//          console.log('userData:', userData);
+//          console.log('userData.isAdmin:', userData.isAdmin);
           setIsAdmin(userData.isAdmin === true);
         }
       } catch (error) {
