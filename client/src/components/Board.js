@@ -595,7 +595,7 @@ function Board({ isAdmin }) {
                           수정
                         </button>
                         <button 
-                          className="delete-button"
+                          className="board-delete-button"
                           onClick={() => handleDelete(post.id)}
                         >
                           삭제

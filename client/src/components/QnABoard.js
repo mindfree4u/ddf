@@ -438,7 +438,7 @@ function QnABoard({ isAdmin }) {
             {(auth.currentUser?.uid === selectedPost.userId || isAdmin) && (
               <button
                 onClick={() => handleDelete(selectedPost.id, selectedPost.fileUrl)}
-                className="delete-button"
+                className="qna-delete-button"
               >
                 삭제
               </button>

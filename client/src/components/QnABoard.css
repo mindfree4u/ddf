@@ -33,20 +33,22 @@
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 20px;
+  background-color: #fdfcfd;
 }
 
 .qna-table th,
 .qna-table td {
   padding: 12px;
   text-align: center;
-  border-botlefttom: 1px solid #ddd;
+  border: none;
+  border-bottom: 1px solid #d3cfcf;
 }
 
 .qna-table th {
   background-color: #f8f9fa;
   font-weight: 600;
   text-align: center;
-
+  border-bottom: 1px solid #d3cfcf;
 }
 
 .post-row {
@@ -132,7 +134,7 @@ textarea.form-control {
   margin-top: 8px;
 }
 
-.delete-button {
+.qna-delete-button {
   margin-left: 20px;
   background-color: #dc3545;
   color: white;
@@ -140,15 +142,14 @@ textarea.form-control {
   border-radius: 4px;
   cursor: pointer;
   font-size: 12px;
-  margin-bottom: 1px;
-  height: 40px;
+  padding: 2px 8px;
+  height: 28px;
   width: 60px;
 }
 
-.delete-button:hover {
+.qna-delete-button:hover {
   background-color: #c82333;
 }
-
 
 .delete-button-reply {
   background-color: #dc3545;
@@ -355,6 +356,7 @@ textarea.form-control {
   .qna-table td {
     padding: 6px;
     text-align: center;
-    border-botlefttom: 1px solid #ddd;
+    border: none;
+    border-bottom: 1px solid #d3cfcf;
   }
 }
