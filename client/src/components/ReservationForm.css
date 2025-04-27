@@ -131,7 +131,7 @@
   color: #333;
   font-weight: 500;
   width: 95%;
-  font-size: 13px;
+  font-size: 18px;
   margin-left: -15px;
 }
 
@@ -533,6 +533,13 @@ input[type="date"]::-ms-expand {
   .date-display::after {
     width: 16px;
     height: 16px;
+  }
+  .date-value {
+    color: #333;
+    font-weight: 500;
+    width: 95%;
+    font-size: 14px;
+    margin-left: -15px;
   }
 }
 

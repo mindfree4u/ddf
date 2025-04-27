@@ -167,6 +167,25 @@ function ReservationForm() {
     };
   }, [showTypeButtons]);
 
+  useEffect(() => {
+    function handleClickOutside(event) {
+      // 클릭된 요소가 예약 테이블 셀이거나 타입 버튼인 경우 무시
+      if (event.target.closest('.clickable') || event.target.closest('.type-buttons')) {
+        return;
+      }
+      // 그 외의 영역 클릭 시 선택 상태 초기화
+      setSelectedTimeSlot(null);
+      setSelectedRoom(null);
+      setShowTypeButtons(false);
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   const handleReservation = async (timeSlot, room, e) => {
     if (e) {
       e.preventDefault();
@@ -202,16 +221,17 @@ function ReservationForm() {
       return;
     }
 
-    // 이미 선택된 셀이 있다면 초기화
-    if (selectedTimeSlot || selectedRoom) {
+    // 다른 셀을 클릭한 경우 이전 선택 초기화
+    if (selectedTimeSlot !== timeSlot || selectedRoom !== room) {
+      setSelectedTimeSlot(timeSlot);
+      setSelectedRoom(room);
+      setShowTypeButtons(true);
+    } else {
+      // 같은 셀을 다시 클릭한 경우
       setSelectedTimeSlot(null);
       setSelectedRoom(null);
       setShowTypeButtons(false);
     }
-
-    setSelectedTimeSlot(timeSlot);
-    setSelectedRoom(room);
-    setShowTypeButtons(true);
   };
 
   const handleTypeSelection = async (type, e) => {
