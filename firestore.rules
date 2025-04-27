@@ -16,7 +16,9 @@ service cloud.firestore {
         function cors() {
       			return request.headers.get('Origin') == "http://localhost:3000"
       		|| request.headers.get('Origin') == "https://drum-playground.firebaseapp.com"
-          || request.headers.get('Origin') == "https://drum-playgroung.web.app";
+          || request.headers.get('Origin') == "https://drum-playgroung.web.app"
+          || request.headers.get('Origin') == "https://ddf.kro.kr"
+          || request.headers.get('Origin') == "https://www.ddf.kro.kr";
     }
       allow read, write: if true;
       allow create: if cors();
