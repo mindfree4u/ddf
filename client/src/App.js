@@ -1,6 +1,6 @@
 // client/src/App.js
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { onAuthStateChanged, getAuth } from 'firebase/auth';
 import { doc, getDoc, collection, getDocs, query, where } from 'firebase/firestore';
@@ -23,6 +23,8 @@ import MemberInfo from './pages/MemberInfo';
 import Profile from './pages/Profile';
 import MyReservations from './pages/MyReservations';
 import './App.css';
+
+const PaymentPage = lazy(() => import('./pages/PaymentPage'));
 
 function App() {
   const [user, setUser] = useState(null);
@@ -99,6 +101,11 @@ function App() {
             <Route path="/profile" element={user ? <Profile /> : <Navigate to="/login" />} />
             <Route path="/my-reservations" element={user ? <MyReservations /> : <Navigate to="/login" />} />
             <Route path="/member-info" element={user && isAdmin ? <MemberInfo /> : <Navigate to="/" />} />
+            <Route path="/payment" element={user ? (
+              <Suspense fallback={<div>Loading...</div>}>
+                <PaymentPage />
+              </Suspense>
+            ) : <Navigate to="/login" />} />
             <Route path="/" element={<Navigate to="/main" />} />
           </Routes>
           <Footer />
