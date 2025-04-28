@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const PAYMENT_OPTIONS = [
   { label: '1개월 레슨비', value: 'lesson', amount: 160000 },
@@ -11,6 +12,7 @@ const TOSS_CLIENT_KEY = 'test_ck_GjLJoQ1aVZq1pAlkbomJ3w6KYe2R';
 function PaymentPage() {
   const [selectedOption, setSelectedOption] = useState('lesson');
   const [customAmount, setCustomAmount] = useState('');
+  const navigate = useNavigate();
 
   const getAmount = () => {
     if (selectedOption === 'custom') {
@@ -20,13 +22,15 @@ function PaymentPage() {
   };
 
   function requestTossPayment(amount) {
+    const orderId = 'order_' + Date.now();
     const tossPayments = window.TossPayments(TOSS_CLIENT_KEY);
+    
     tossPayments.requestPayment('카드', {
       amount,
-      orderId: 'order_' + Date.now(),
+      orderId,
       orderName: PAYMENT_OPTIONS.find(opt => opt.value === selectedOption)?.label || '직접입력',
       customerName: '테스트회원',
-      successUrl: window.location.origin + '/payment-success',
+      successUrl: window.location.origin + '/payment/success',
       failUrl: window.location.origin + '/payment-fail',
     })
     .catch(function (error) {
@@ -57,9 +61,28 @@ function PaymentPage() {
     requestTossPayment(amount);
   };
 
+  const handlePaymentSuccess = (paymentResult) => {
+    // 결제 정보 생성
+    const paymentInfo = {
+      reservationId: paymentResult.reservationId,
+      amount: paymentResult.amount,
+      reservationDate: paymentResult.reservationDate,
+      startTime: paymentResult.startTime,
+      endTime: paymentResult.endTime,
+      paymentMethod: paymentResult.paymentMethod,
+      paymentDate: new Date().toISOString()
+    };
+
+    // PaymentSuccess 페이지로 이동하면서 결제 정보 전달
+    navigate('/payment/success', { 
+      state: { paymentInfo },
+      replace: true 
+    });
+  };
+
   return (
     <div className="payment-page-container" style={{ maxWidth: 400, margin: '40px auto', padding: 20, background: '#fff', borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
-      <h2>결제하기</h2>
+      <h2>결제하기(시험중으로서 지금은 결제가 이루어지지 않습니다)</h2>
       <div style={{ marginBottom: 24 }}>
         {PAYMENT_OPTIONS.map(opt => (
           <div key={opt.value} style={{ marginBottom: 12 }}>
