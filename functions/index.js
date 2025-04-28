@@ -8,7 +8,7 @@ admin.initializeApp();
 // 환경변수에 이메일 정보 저장 (firebase functions:config:set 로 설정)
 const NAVER_EMAIL = defineSecret('NAVER_EMAIL');
 const NAVER_PASSWORD = defineSecret('NAVER_PASSWORD');
-const adminMail = 'bestuser@naver.com';
+const adminMail = 'mindfree4u@daum.net';
 
 const getTransporter = (naverEmail, naverPassword) => nodemailer.createTransport({
   host: 'smtp.naver.com',
@@ -35,8 +35,8 @@ exports.sendReservationMail = onDocumentCreated(
     const mailOptions = {
       from: `"드럼놀이터" <${NAVER_EMAIL.value()}>`,
       to: adminMail,
-      subject: '[예약 알림] 새로운 예약이 등록되었습니다',
-      text: `예약자: ${data.userName}\n날짜: ${data.date}\n시간: ${data.timeSlot}\n룸: ${data.room}`,
+      subject: `[예약 알림] ${data.userName}님의 새로운 예약[${data.type}] ${data.date},${data.timeSlot} (${data.room})이 등록되었습니다`,
+      text: `예약자: ${data.userName}\n구분: ${data.type}\n날짜: ${data.date}\n시간: ${data.timeSlot}\n룸: ${data.room}`,
     };
     await transporter.sendMail(mailOptions);
     return null;
@@ -53,13 +53,14 @@ exports.sendCancelMail = onDocumentDeleted(
     const snapshot = event.data;
     if (!snapshot) return;
     const data = snapshot.data();
+
     if (!data) return;
     const transporter = getTransporter(NAVER_EMAIL.value(), NAVER_PASSWORD.value());
     const mailOptions = {
       from: `"드럼놀이터" <${NAVER_EMAIL.value()}>`,
       to: adminMail,
-      subject: '[예약 취소 알림] 예약이 취소되었습니다',
-      text: `예약자: ${data.userName}\n날짜: ${data.date}\n시간: ${data.timeSlot}\n룸: ${data.room}`,
+      subject: `[예약 취소 알림] ${data.userName}님의 [${data.type}] ${data.date},${data.timeSlot} (${data.room}) 예약이 취소되었습니다`,
+      text: `예약자: ${data.userName}\n구분: ${data.type}\n날짜: ${data.date}\n시간: ${data.timeSlot}\n룸: ${data.room}`,
     };
     await transporter.sendMail(mailOptions);
     return null;
