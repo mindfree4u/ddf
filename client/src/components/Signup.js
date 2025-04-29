@@ -16,6 +16,7 @@ function Signup() {
   const [phone, setPhone] = useState('');
   const [error, setError] = useState('');
   const [isIdAvailable, setIsIdAvailable] = useState(true);
+  const [isEmailAvailable, setIsEmailAvailable] = useState(true);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const auth = getAuth();
@@ -36,6 +37,22 @@ function Signup() {
     }
   };
 
+  const checkEmailExists = async (email) => {
+    if (!email || !email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+      setIsEmailAvailable(true);
+      return;
+    }
+
+    try {
+      const q = query(collection(db, 'users'), where('email', '==', email));
+      const querySnapshot = await getDocs(q);
+      setIsEmailAvailable(querySnapshot.empty);
+    } catch (error) {
+      console.error('Error checking email:', error);
+      setIsEmailAvailable(false);
+    }
+  };
+
   useEffect(() => {
     const timer = setTimeout(() => {
       checkUserIdExists(userId);
@@ -44,10 +61,31 @@ function Signup() {
     return () => clearTimeout(timer);
   }, [userId]);
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      checkEmailExists(email);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [email]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
+
+    // 기본 유효성 검사
+    if (!isIdAvailable) {
+      setError('이미 사용 중인 아이디입니다.');
+      setLoading(false);
+      return;
+    }
+
+    if (!isEmailAvailable) {
+      setError('이미 사용 중인 이메일입니다.');
+      setLoading(false);
+      return;
+    }
 
     if (password !== confirmPassword) {
       setError('비밀번호가 일치하지 않습니다.');
@@ -85,9 +123,10 @@ function Signup() {
         throw new Error('아이디는 영문, 숫자, 언더스코어(_)만 사용 가능합니다.');
       }
 
-      // 이름 검증
-      if (!name.trim()) {
-        throw new Error('이름을 입력해주세요.');
+      // 전화번호 형식 검증
+      const phoneRegex = /^[0-9]{2,3}-[0-9]{3,4}-[0-9]{4}$/;
+      if (!phoneRegex.test(phone)) {
+        throw new Error('올바른 전화번호 형식이 아닙니다. (예: 010-1234-5678)');
       }
 
       // 이메일로 사용자 생성
@@ -100,7 +139,7 @@ function Signup() {
         name,
         phone,
         userId,
-        isAdmin: userId === 'admin', // userId가 'admin'인 경우 관리자로 설정
+        isAdmin: userId === 'admin',
         createdAt: Timestamp.now()
       });
 
@@ -116,6 +155,10 @@ function Signup() {
         setError('이미 사용 중인 이메일입니다.');
       } else if (error.code === 'auth/weak-password') {
         setError('비밀번호는 6자 이상이어야 합니다.');
+      } else if (error.code === 'auth/invalid-email') {
+        setError('올바른 이메일 형식이 아닙니다.');
+      } else if (error.message) {
+        setError(error.message);
       } else {
         setError('회원가입 중 오류가 발생했습니다.');
       }
@@ -141,8 +184,25 @@ function Signup() {
           {userId && !isIdAvailable && (
             <div className="error-message">이미 사용 중인 아이디입니다.</div>
           )}
-          {userId && isIdAvailable && (
+          {userId && isIdAvailable && userId.length > 0 && (
             <div className="success-message">사용 가능한 아이디입니다.</div>
+          )}
+        </div>
+        <div className="form-group">
+          <label htmlFor="email">이메일</label>
+          <input
+            type="email"
+            id="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className={email && !isEmailAvailable ? 'error-input' : ''}
+          />
+          {email && !isEmailAvailable && (
+            <div className="error-message">이미 사용 중인 이메일입니다.</div>
+          )}
+          {email && isEmailAvailable && email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/) && (
+            <div className="success-message">사용 가능한 이메일입니다.</div>
           )}
         </div>
         <div className="form-group">
@@ -161,18 +221,20 @@ function Signup() {
             type="tel"
             id="phone"
             value={phone}
-            onChange={(e) => setPhone(e.target.value)}
+            onChange={(e) => {
+              // 자동으로 하이픈 추가
+              const value = e.target.value.replace(/[^0-9]/g, '');
+              if (value.length <= 11) {
+                let formattedValue = value;
+                if (value.length > 3 && value.length <= 7) {
+                  formattedValue = value.replace(/(\d{3})(\d{1,4})/, '$1-$2');
+                } else if (value.length > 7) {
+                  formattedValue = value.replace(/(\d{3})(\d{4})(\d{1,4})/, '$1-$2-$3');
+                }
+                setPhone(formattedValue);
+              }
+            }}
             placeholder="010-0000-0000"
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="email">이메일</label>
-          <input
-            type="email"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
             required
           />
         </div>
@@ -184,6 +246,7 @@ function Signup() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            minLength={6}
           />
         </div>
         <div className="form-group">
@@ -197,7 +260,12 @@ function Signup() {
           />
         </div>
         {error && <div className="error-message">{error}</div>}
-        <button type="submit" disabled={!isIdAvailable || loading}>회원가입</button>
+        <button 
+          type="submit" 
+          disabled={!isIdAvailable || !isEmailAvailable || loading}
+        >
+          {loading ? '처리중...' : '회원가입'}
+        </button>
         <Link to="/login" className="login-link">로그인</Link>
       </form>
     </div>

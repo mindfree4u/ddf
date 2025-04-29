@@ -8,7 +8,7 @@ admin.initializeApp();
 // 환경변수에 이메일 정보 저장 (firebase functions:config:set 로 설정)
 const NAVER_EMAIL = defineSecret('NAVER_EMAIL');
 const NAVER_PASSWORD = defineSecret('NAVER_PASSWORD');
-const adminMail = 'ddfo-o@naver.com';
+const adminMail = ['mindfree4u@daum.net', 'jsdtoner@naver.com', 'ddfoo@naver.com'];
 
 const getTransporter = (naverEmail, naverPassword) => nodemailer.createTransport({
   host: 'smtp.naver.com',
@@ -194,3 +194,41 @@ exports.calculateStats = functions.https.onCall(async (data, context) => {
     throw new functions.https.HttpsError('internal', '통계 계산 중 오류가 발생했습니다.');
   }
 });
+
+// 회원가입 시 이메일 발송 (v2 문법)
+exports.onNewUserSignup = onDocumentCreated(
+  {
+    document: 'users/{userId}',
+    secrets: ['NAVER_EMAIL', 'NAVER_PASSWORD'],
+  },
+  async (event) => {
+    const snapshot = event.data;
+    if (!snapshot) return;
+    const data = snapshot.data();
+    if (!data) return;
+
+    const transporter = getTransporter(NAVER_EMAIL.value(), NAVER_PASSWORD.value());
+    const mailOptions = {
+      from: `"드럼놀이터" <${NAVER_EMAIL.value()}>`,
+      to: adminMail,
+      subject: '[드럼놀이터] 새로운 회원가입 알림',
+      html: `
+        <h2>새로운 회원이 가입했습니다.</h2>
+        <p><strong>아이디:</strong> ${data.userId}</p>
+        <p><strong>이름:</strong> ${data.name}</p>
+        <p><strong>이메일:</strong> ${data.email}</p>
+        <p><strong>전화번호:</strong> ${data.phone}</p>
+        <p><strong>가입일시:</strong> ${data.createdAt.toDate().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })}</p>
+      `
+    };
+
+    try {
+      await transporter.sendMail(mailOptions);
+      console.log('Signup notification email sent successfully');
+      return null;
+    } catch (error) {
+      console.error('Error sending signup notification email:', error);
+      return null;
+    }
+  }
+);

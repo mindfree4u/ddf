@@ -1,16 +1,16 @@
 {
   "files": {
-    "main.css": "/static/css/main.323562a3.css",
-    "main.js": "/static/js/main.061ed1f7.js",
-    "static/js/170.a31c0742.chunk.js": "/static/js/170.a31c0742.chunk.js",
+    "main.css": "/static/css/main.a0abec67.css",
+    "main.js": "/static/js/main.3cdb5b27.js",
+    "static/js/170.9498c848.chunk.js": "/static/js/170.9498c848.chunk.js",
     "static/media/ddf-logo.png": "/static/media/ddf-logo.dc0b53ca30d948382684.png",
     "index.html": "/index.html",
-    "main.323562a3.css.map": "/static/css/main.323562a3.css.map",
-    "main.061ed1f7.js.map": "/static/js/main.061ed1f7.js.map",
-    "170.a31c0742.chunk.js.map": "/static/js/170.a31c0742.chunk.js.map"
+    "main.a0abec67.css.map": "/static/css/main.a0abec67.css.map",
+    "main.3cdb5b27.js.map": "/static/js/main.3cdb5b27.js.map",
+    "170.9498c848.chunk.js.map": "/static/js/170.9498c848.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.323562a3.css",
-    "static/js/main.061ed1f7.js"
+    "static/css/main.a0abec67.css",
+    "static/js/main.3cdb5b27.js"
   ]
 }
