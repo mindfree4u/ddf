@@ -23,6 +23,7 @@ import MemberInfo from './pages/MemberInfo';
 import Profile from './pages/Profile';
 import MyReservations from './pages/MyReservations';
 import PaymentSuccess from './pages/PaymentSuccess';
+import PaymentSettings from './pages/PaymentSettings';
 import './App.css';
 
 const PaymentPage = lazy(() => import('./pages/PaymentPage'));
@@ -102,6 +103,7 @@ function App() {
             <Route path="/profile" element={user ? <Profile /> : <Navigate to="/login" />} />
             <Route path="/my-reservations" element={user ? <MyReservations /> : <Navigate to="/login" />} />
             <Route path="/member-info" element={user && isAdmin ? <MemberInfo /> : <Navigate to="/" />} />
+            <Route path="/payment-settings" element={user && isAdmin ? <PaymentSettings /> : <Navigate to="/" />} />
             <Route path="/payment" element={user ? (
               <Suspense fallback={<div>Loading...</div>}>
                 <PaymentPage />

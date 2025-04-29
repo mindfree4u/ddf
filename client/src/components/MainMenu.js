@@ -176,6 +176,7 @@ function MainMenu({ isAdmin }) {
                 <span>관리자 메뉴</span>
                 <ul className="admin-dropdown">
                   <li><Link to="/member-info" onClick={() => handleAdminMenuClick('/member-info')}>회원관리</Link></li>
+                  <li><Link to="/payment-settings" onClick={() => handleAdminMenuClick('/payment-settings')}>결제비용 설정</Link></li>
                 </ul>
               </li>
             )}

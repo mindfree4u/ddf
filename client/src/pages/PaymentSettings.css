@@ -1,0 +1,71 @@
+.payment-settings-container {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 20px;
+}
+
+.payment-settings-form {
+  margin-bottom: 30px;
+}
+
+.form-group {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.form-group input {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  flex: 1;
+}
+
+.form-group button {
+  padding: 8px 20px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.form-group button:hover {
+  background-color: #45a049;
+}
+
+.payment-options-list table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.payment-options-list th,
+.payment-options-list td {
+  padding: 12px;
+  text-align: center;
+  border-bottom: 1px solid #ddd;
+}
+
+.payment-options-list th {
+  background-color: #f5f5f5;
+  font-weight: bold;
+}
+
+.delete-button {
+  padding: 6px 12px;
+  background-color: #ff4444;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.delete-button:hover {
+  background-color: #cc0000;
+}
+
+.error-message {
+  color: #ff4444;
+  margin: 10px 0;
+} 

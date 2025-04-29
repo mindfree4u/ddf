@@ -1,34 +1,62 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-const PAYMENT_OPTIONS = [
-  { label: '1개월 레슨비', value: 'lesson', amount: 160000 },
-  { label: '연습실 이용료', value: 'practice', amount: 10000 },
-  { label: '금액 직접입력', value: 'custom', amount: 0 },
-];
+import { db } from '../firebase';
+import { collection, getDocs } from 'firebase/firestore';
 
 const TOSS_CLIENT_KEY = 'test_ck_GjLJoQ1aVZq1pAlkbomJ3w6KYe2R';
 
 function PaymentPage() {
-  const [selectedOption, setSelectedOption] = useState('lesson');
+  const [paymentOptions, setPaymentOptions] = useState([]);
+  const [selectedOption, setSelectedOption] = useState(null);
   const [customAmount, setCustomAmount] = useState('');
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+
+  // 결제 옵션 불러오기
+  useEffect(() => {
+    loadPaymentOptions();
+  }, []);
+
+  const loadPaymentOptions = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, 'payment_settings'));
+      const options = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        value: doc.id // value를 문서 ID로 설정
+      }));
+      // 직접입력 옵션 추가
+      options.push({ label: '금액 직접입력', value: 'custom', amount: 0 });
+      setPaymentOptions(options);
+      
+      // 첫 번째 옵션을 기본값으로 설정
+      if (options.length > 0) {
+        setSelectedOption(options[0].value);
+      }
+      setLoading(false);
+    } catch (error) {
+      console.error('Error loading payment options:', error);
+      setLoading(false);
+    }
+  };
 
   const getAmount = () => {
     if (selectedOption === 'custom') {
       return Number(customAmount) || 0;
     }
-    return PAYMENT_OPTIONS.find(opt => opt.value === selectedOption)?.amount || 0;
+    return paymentOptions.find(opt => opt.value === selectedOption)?.amount || 0;
   };
 
   function requestTossPayment(amount) {
     const orderId = 'order_' + Date.now();
     const tossPayments = window.TossPayments(TOSS_CLIENT_KEY);
     
+    const selectedOptionLabel = paymentOptions.find(opt => opt.value === selectedOption)?.label || '직접입력';
+    
     tossPayments.requestPayment('카드', {
       amount,
       orderId,
-      orderName: PAYMENT_OPTIONS.find(opt => opt.value === selectedOption)?.label || '직접입력',
+      orderName: selectedOptionLabel,
       customerName: '테스트회원',
       successUrl: window.location.origin + '/payment/success',
       failUrl: window.location.origin + '/payment-fail',
@@ -45,7 +73,6 @@ function PaymentPage() {
   const handlePayment = () => {
     const amount = getAmount();
     if (!window.TossPayments) {
-      // 스크립트가 없으면 동적으로 추가
       const script = document.createElement('script');
       script.src = 'https://js.tosspayments.com/v1/payment';
       script.async = true;
@@ -80,11 +107,15 @@ function PaymentPage() {
     });
   };
 
+  if (loading) {
+    return <div>로딩중...</div>;
+  }
+
   return (
     <div className="payment-page-container" style={{ maxWidth: 400, margin: '40px auto', padding: 20, background: '#fff', borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
       <h2>결제하기(시험중으로서 지금은 결제가 이루어지지 않습니다)</h2>
       <div style={{ marginBottom: 24 }}>
-        {PAYMENT_OPTIONS.map(opt => (
+        {paymentOptions.map(opt => (
           <div key={opt.value} style={{ marginBottom: 12 }}>
             <label>
               <input

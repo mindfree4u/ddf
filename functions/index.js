@@ -8,7 +8,7 @@ admin.initializeApp();
 // 환경변수에 이메일 정보 저장 (firebase functions:config:set 로 설정)
 const NAVER_EMAIL = defineSecret('NAVER_EMAIL');
 const NAVER_PASSWORD = defineSecret('NAVER_PASSWORD');
-const adminMail = 'mindfree4u@daum.net';
+const adminMail = 'ddfo-o@naver.com';
 
 const getTransporter = (naverEmail, naverPassword) => nodemailer.createTransport({
   host: 'smtp.naver.com',
