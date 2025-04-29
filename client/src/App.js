@@ -92,7 +92,7 @@ function App() {
             <Route path="/signup" element={!user ? <Signup /> : <Navigate to="/" />} />
             <Route path="/reservation" element={user ? <ReservationForm isAdmin={isAdmin} /> : <Navigate to="/login" />} />
             <Route path="/main" element={<MainPage />} />
-            <Route path="/introduction" element={<Introduction />} />
+            <Route path="/introduction" element={<Introduction isAdmin={isAdmin} />} />
             <Route path="/video-upload" element={<VideoUpload isAdmin={isAdmin} />} />
             <Route path="/playground-photos" element={<PlaygroundPhotos isAdmin={isAdmin} />} />
             <Route path="/board" element={<Board isAdmin={isAdmin} />} />

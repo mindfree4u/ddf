@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../firebase';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 
 const TOSS_CLIENT_KEY = 'test_ck_GjLJoQ1aVZq1pAlkbomJ3w6KYe2R';
 
@@ -19,7 +19,12 @@ function PaymentPage() {
 
   const loadPaymentOptions = async () => {
     try {
-      const querySnapshot = await getDocs(collection(db, 'payment_settings'));
+//      const querySnapshot = await getDocs(collection(db, 'payment_settings'));
+      const q = query(collection(db, 'payment_settings'), orderBy('amount', 'asc'));
+      const querySnapshot = await getDocs(q);
+
+      
+
       const options = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),

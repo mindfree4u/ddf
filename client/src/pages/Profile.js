@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { auth, db } from '../firebase';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { updatePassword, EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
 import { deleteUser } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
@@ -113,13 +113,16 @@ const Profile = () => {
       const user = auth.currentUser;
       if (!user) return;
 
-      // 사용자 문서 삭제
+      // Firestore에서 사용자 문서 삭제
+      await deleteDoc(doc(db, 'users', user.uid));
+      
+      // Firebase Authentication에서 사용자 삭제
       await deleteUser(user);
 
       navigate('/login');
     } catch (err) {
       console.error('Error deleting account:', err);
-      setError('계정 삭제 중 오류가 발생했습니다.');
+      setError('계정 삭제 중 오류가 발생했습니다. 다시 로그인한 후 시도해주세요.');
     }
   };
 

@@ -1,17 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebase';
-import { collection, addDoc, getDocs, deleteDoc, doc } from 'firebase/firestore';
+import { collection, addDoc, getDocs, query, orderBy, deleteDoc, doc, updateDoc } from 'firebase/firestore';
 import './PaymentSettings.css';
 
 function PaymentSettings() {
   const [paymentOptions, setPaymentOptions] = useState([]);
   const [newOption, setNewOption] = useState({ label: '', amount: '' });
   const [error, setError] = useState('');
+  const [editingId, setEditingId] = useState(null);
+  const [editForm, setEditForm] = useState({ label: '', amount: '' });
 
   // 결제 옵션 불러오기
   const loadPaymentOptions = async () => {
     try {
-      const querySnapshot = await getDocs(collection(db, 'payment_settings'));
+      const q = query(collection(db, 'payment_settings'), orderBy('amount', 'asc'));
+      const querySnapshot = await getDocs(q);
+
+      
       const options = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
@@ -59,12 +64,58 @@ function PaymentSettings() {
 
   // 결제 옵션 삭제
   const handleDeleteOption = async (id) => {
+    if (!window.confirm('정말로 이 결제 옵션을 삭제하시겠습니까?')) return;
+    
     try {
       await deleteDoc(doc(db, 'payment_settings', id));
       loadPaymentOptions();
     } catch (error) {
       console.error('Error deleting payment option:', error);
       setError('결제 옵션 삭제 중 오류가 발생했습니다.');
+    }
+  };
+
+  // 수정 모드 시작
+  const handleStartEdit = (option) => {
+    setEditingId(option.id);
+    setEditForm({
+      label: option.label,
+      amount: option.amount.toString()
+    });
+  };
+
+  // 수정 취소
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setEditForm({ label: '', amount: '' });
+  };
+
+  // 결제 옵션 수정
+  const handleUpdateOption = async (id) => {
+    if (!editForm.label || !editForm.amount) {
+      setError('결제구분과 금액을 모두 입력해주세요.');
+      return;
+    }
+
+    const amount = parseInt(editForm.amount);
+    if (isNaN(amount) || amount <= 0) {
+      setError('유효한 금액을 입력해주세요.');
+      return;
+    }
+
+    try {
+      await updateDoc(doc(db, 'payment_settings', id), {
+        label: editForm.label,
+        amount: amount
+      });
+      
+      setEditingId(null);
+      setEditForm({ label: '', amount: '' });
+      setError('');
+      loadPaymentOptions();
+    } catch (error) {
+      console.error('Error updating payment option:', error);
+      setError('결제 옵션 수정 중 오류가 발생했습니다.');
     }
   };
 
@@ -103,15 +154,60 @@ function PaymentSettings() {
           <tbody>
             {paymentOptions.map((option) => (
               <tr key={option.id}>
-                <td>{option.label}</td>
-                <td>{option.amount.toLocaleString()}원</td>
                 <td>
-                  <button 
-                    className="delete-button"
-                    onClick={() => handleDeleteOption(option.id)}
-                  >
-                    삭제
-                  </button>
+                  {editingId === option.id ? (
+                    <input
+                      type="text"
+                      value={editForm.label}
+                      onChange={(e) => setEditForm({ ...editForm, label: e.target.value })}
+                    />
+                  ) : (
+                    option.label
+                  )}
+                </td>
+                <td>
+                  {editingId === option.id ? (
+                    <input
+                      type="number"
+                      value={editForm.amount}
+                      onChange={(e) => setEditForm({ ...editForm, amount: e.target.value })}
+                    />
+                  ) : (
+                    `${option.amount.toLocaleString()}원`
+                  )}
+                </td>
+                <td className = "btn-select"    >
+                  {editingId === option.id ? (
+                    <>
+                      <button 
+                        className="save-button"
+                        onClick={() => handleUpdateOption(option.id)}
+                      >
+                        저장
+                      </button>
+                      <button 
+                        className="cancel-button"
+                        onClick={handleCancelEdit}
+                      >
+                        취소
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button 
+                        className="edit-button"
+                        onClick={() => handleStartEdit(option)}
+                      >
+                        수정
+                      </button>
+                      <button 
+                        className="delete-button"
+                        onClick={() => handleDeleteOption(option.id)}
+                      >
+                        삭제
+                      </button>
+                    </>
+                  )}
                 </td>
               </tr>
             ))}

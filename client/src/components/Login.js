@@ -67,7 +67,7 @@ function Login() {
       }
     } catch (error) {
       console.error('Error signing in:', error);
-      setError('로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.');
+      setError('로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요.');
     } finally {
       setLoading(false);
     }
