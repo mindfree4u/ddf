@@ -1,111 +1,104 @@
-import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import React, { useEffect, useState, useRef } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { auth, db, sendPaymentNotification } from '../firebase';
+import { doc, getDoc, addDoc, collection } from 'firebase/firestore';
 import './PaymentSuccess.css';
 
-function PaymentSuccess() {
-  const location = useLocation();
+const PaymentSuccess = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const location = useLocation();
   const [paymentInfo, setPaymentInfo] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const emailSentRef = useRef(false);
 
   useEffect(() => {
-    // URL 파라미터에서 결제 정보 가져오기
-    const orderId = searchParams.get('orderId');
-    const paymentKey = searchParams.get('paymentKey');
-    const amount = searchParams.get('amount');
+    const fetchPaymentInfo = async () => {
+      try {
+        const user = auth.currentUser;
+        if (!user) {
+          navigate('/login');
+          return;
+        }
 
-    if (orderId && paymentKey && amount) {
-      // 실제 서비스에서는 서버에 결제 검증 요청을 해야 합니다.
-      const paymentData = {
-        reservationId: orderId,
-        amount: parseInt(amount),
-        reservationDate: new Date().toISOString(),
-        startTime: '14:00',  // 예시 데이터
-        endTime: '16:00',    // 예시 데이터
-        paymentMethod: '카드',
-        paymentDate: new Date().toISOString(),
-        paymentKey: paymentKey
-      };
-      setPaymentInfo(paymentData);
-    } else if (location.state?.paymentInfo) {
-      // 기존 방식 (state를 통한 데이터 전달)
-      setPaymentInfo(location.state.paymentInfo);
-    }
-  }, [searchParams, location.state]);
+        // URL 파라미터에서 결제 정보 가져오기
+        const searchParams = new URLSearchParams(location.search);
+        const orderId = searchParams.get('orderId');
+        const paymentKey = searchParams.get('paymentKey');
+        const amount = searchParams.get('amount');
 
-  if (!paymentInfo) {
-    return (
-      <div className="payment-success-container">
-        <h2>잘못된 접근입니다</h2>
-        <button onClick={() => navigate('/main')} className="secondary-button">
-          메인으로 돌아가기
-        </button>
-      </div>
-    );
-  }
+        if (!orderId || !paymentKey || !amount) {
+          throw new Error('결제 정보를 찾을 수 없습니다. 결제 페이지에서 다시 시도해주세요.');
+        }
 
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일 ${date.getHours()}시 ${date.getMinutes()}분`;
-  };
+        // 결제 정보를 Firestore에 저장
+        const paymentRef = await addDoc(collection(db, 'payments'), {
+          amount: parseInt(amount),
+          orderId: orderId,
+          paymentKey: paymentKey,
+          timestamp: new Date(),
+          userId: user.uid,
+          userName: user.displayName || '사용자',
+          status: 'completed'
+        });
 
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat('ko-KR').format(price);
-  };
+        console.log('Payment saved with ID:', paymentRef.id);
+
+        // 저장된 결제 정보를 상태에 설정
+        setPaymentInfo({
+          amount: parseInt(amount),
+          timestamp: new Date()
+        });
+
+        // 이메일 전송이 아직 되지 않았다면 전송
+        if (!emailSentRef.current) {
+          try {
+            await sendPaymentNotification({
+              userName: user.displayName || '사용자',
+              amount: parseInt(amount),
+              timestamp: new Date().toLocaleString()
+            });
+            emailSentRef.current = true;
+          } catch (emailError) {
+            console.error('Failed to send payment notification email:', emailError);
+            // 이메일 전송 실패는 사용자에게 보여주지 않음
+          }
+        }
+
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching payment info:', err);
+        setError(err.message);
+        setLoading(false);
+      }
+    };
+
+    fetchPaymentInfo();
+  }, [navigate, location.search]);
+
+  if (loading) return <div className="loading">결제 정보를 불러오는 중...</div>;
+  if (error) return (
+    <div className="error-container">
+      <div className="error">{error}</div>
+      <button onClick={() => navigate('/main')} className="home-button">
+        홈으로 돌아가기
+      </button>
+    </div>
+  );
 
   return (
     <div className="payment-success-container">
-      <div className="success-icon">✓</div>
-      <h2>결제가 완료되었습니다</h2>
-      
-      <div className="payment-info-card">
-        <h3>결제 정보</h3>
-        <div className="payment-details">
-{/*
-          <div className="info-row">
-            <span className="label">예약 번호:</span>
-            <span className="value">{paymentInfo.reservationId}</span>
-          </div>
-*/}
-          <div className="info-row">
-            <span className="label">결제 금액:</span>
-            <span className="value">{formatPrice(paymentInfo.amount)}원</span>
-          </div>
-{/*
-          <div className="info-row">
-            <span className="label">예약 시간:</span>
-            <span className="value">{paymentInfo.startTime} - {paymentInfo.endTime}</span>
-          </div>
-          
-          <div className="info-row">
-            <span className="label">결제 방법:</span>
-            <span className="value">{paymentInfo.paymentMethod}</span>
-          </div>
-          <div className="info-row">
-            <span className="label">결제 키:</span>
-            <span className="value">{paymentInfo.paymentKey}</span>
-          </div>
-*/}
-          <div className="info-row">
-            <span className="label">결제 시간:</span>
-            <span className="value">{formatDate(paymentInfo.paymentDate)}</span>
-          </div>
-
-        </div>
+      <h1>결제가 완료되었습니다!</h1>
+      <div className="payment-info">
+        <h2>결제 정보</h2>
+        <p>결제 금액: {paymentInfo.amount.toLocaleString()}원</p>
+        <p>결제 일시: {paymentInfo.timestamp.toLocaleString()}</p>
       </div>
-
-      <div className="action-buttons">
-{/*
-        <button onClick={() => navigate('/my-reservations')} className="primary-button">
-          예약 내역 보기
-        </button>
-*/}
-        <button onClick={() => navigate('/main')} className="secondary-button">
-          메인으로 돌아가기
-        </button>
-      </div>
+      <button onClick={() => navigate('/main')} className="home-button">
+        홈으로 돌아가기
+      </button>
     </div>
   );
-}
+};
 
 export default PaymentSuccess; 

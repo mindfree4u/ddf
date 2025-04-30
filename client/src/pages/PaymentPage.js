@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { db } from '../firebase';
-import { collection, getDocs, query, orderBy } from 'firebase/firestore';
+import { db, auth } from '../firebase';
+import { collection, getDocs, query, orderBy, addDoc } from 'firebase/firestore';
 
 const TOSS_CLIENT_KEY = 'test_ck_GjLJoQ1aVZq1pAlkbomJ3w6KYe2R';
 
@@ -19,16 +19,13 @@ function PaymentPage() {
 
   const loadPaymentOptions = async () => {
     try {
-//      const querySnapshot = await getDocs(collection(db, 'payment_settings'));
       const q = query(collection(db, 'payment_settings'), orderBy('amount', 'asc'));
       const querySnapshot = await getDocs(q);
-
-      
 
       const options = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
-        value: doc.id // value를 문서 ID로 설정
+        value: doc.id
       }));
       // 직접입력 옵션 추가
       options.push({ label: '금액 직접입력', value: 'custom', amount: 0 });
@@ -52,6 +49,38 @@ function PaymentPage() {
     return paymentOptions.find(opt => opt.value === selectedOption)?.amount || 0;
   };
 
+  const handlePaymentSuccess = async (paymentResult) => {
+    try {
+      const user = auth.currentUser;
+      if (!user) {
+        navigate('/login');
+        return;
+      }
+
+      // 결제 정보를 Firestore에 저장
+      const paymentRef = await addDoc(collection(db, 'payments'), {
+        amount: paymentResult.amount,
+        paymentMethod: paymentResult.paymentMethod,
+        timestamp: new Date(),
+        userId: user.uid,
+        userName: user.displayName || '사용자',
+        orderId: paymentResult.orderId,
+        status: 'completed'
+      });
+
+      console.log('Payment saved with ID:', paymentRef.id);
+
+      // PaymentSuccess 페이지로 이동하면서 paymentId 전달
+      navigate('/payment/success', { 
+        state: { paymentId: paymentRef.id },
+        replace: true
+      });
+    } catch (error) {
+      console.error('Error saving payment:', error);
+      alert('결제 정보 저장 중 오류가 발생했습니다.');
+    }
+  };
+
   function requestTossPayment(amount) {
     const orderId = 'order_' + Date.now();
     const tossPayments = window.TossPayments(TOSS_CLIENT_KEY);
@@ -65,6 +94,14 @@ function PaymentPage() {
       customerName: '테스트회원',
       successUrl: window.location.origin + '/payment/success',
       failUrl: window.location.origin + '/payment-fail',
+    })
+    .then(function (result) {
+      console.log('Payment result:', result);
+      // 결제 성공 시 처리
+      handlePaymentSuccess({
+        ...result,
+        orderId: orderId
+      });
     })
     .catch(function (error) {
       if (error.code === 'USER_CANCEL') {
@@ -91,25 +128,6 @@ function PaymentPage() {
       return;
     }
     requestTossPayment(amount);
-  };
-
-  const handlePaymentSuccess = (paymentResult) => {
-    // 결제 정보 생성
-    const paymentInfo = {
-      reservationId: paymentResult.reservationId,
-      amount: paymentResult.amount,
-      reservationDate: paymentResult.reservationDate,
-      startTime: paymentResult.startTime,
-      endTime: paymentResult.endTime,
-      paymentMethod: paymentResult.paymentMethod,
-      paymentDate: new Date().toISOString()
-    };
-
-    // PaymentSuccess 페이지로 이동하면서 결제 정보 전달
-    navigate('/payment/success', { 
-      state: { paymentInfo },
-      replace: true 
-    });
   };
 
   if (loading) {
@@ -158,7 +176,6 @@ function PaymentPage() {
       >
         결제하기
       </button>
-      {/* 토스페이먼츠 결제 위젯은 결제 버튼 클릭 시 팝업으로 동작합니다. */}
     </div>
   );
 }

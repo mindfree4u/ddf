@@ -3,6 +3,7 @@ const admin = require('firebase-admin');
 const nodemailer = require('nodemailer');
 const { onDocumentCreated, onDocumentDeleted } = require('firebase-functions/v2/firestore');
 const { defineSecret } = require('firebase-functions/params');
+const cors = require('cors')({ origin: true });
 admin.initializeApp();
 
 // 환경변수에 이메일 정보 저장 (firebase functions:config:set 로 설정)
@@ -229,6 +230,39 @@ exports.onNewUserSignup = onDocumentCreated(
     } catch (error) {
       console.error('Error sending signup notification email:', error);
       return null;
+    }
+  }
+);
+
+// 결제 완료 시 관리자에게 이메일 전송 (v2 문법)
+exports.sendPaymentNotification = functions.https.onCall(
+  {
+    secrets: ['NAVER_EMAIL', 'NAVER_PASSWORD'],
+  },
+  async (request) => {
+    const { userName, amount, timestamp } = request.data;
+
+    try {
+      const transporter = getTransporter(NAVER_EMAIL.value(), NAVER_PASSWORD.value());
+      
+      const mailOptions = {
+        from: `"드럼놀이터" <${NAVER_EMAIL.value()}>`,
+        to: adminMail,
+        subject: `[결제 알림] ${userName}님의 새로운 결제가 완료되었습니다`,
+        html: `
+          <h2>새로운 결제 알림</h2>
+          <p>결제자: ${userName}</p>
+          <p>결제 금액: ${amount.toLocaleString()}원</p>
+          <p>결제 시간: ${timestamp}</p>
+        `
+      };
+
+      await transporter.sendMail(mailOptions);
+      console.log('Payment notification email sent successfully');
+      return { success: true };
+    } catch (error) {
+      console.error('이메일 전송 실패:', error);
+      throw new functions.https.HttpsError('internal', '이메일 전송에 실패했습니다.');
     }
   }
 );
