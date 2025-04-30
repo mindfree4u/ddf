@@ -131,6 +131,7 @@ function PaymentHistory() {
               <tr>
                 <th>결제일시</th>
                 <th>결제자</th>
+                <th>결제구분</th>
                 <th>금액</th>
                 <th>상태</th>
               </tr>
@@ -140,6 +141,7 @@ function PaymentHistory() {
                 <tr key={payment.id}>
                   <td>{formatDate(payment.timestamp)}</td>
                   <td>{payment.userName || '이름 없음'}</td>
+                  <td>{payment.paymentType || '금액 입력'}</td>
                   <td>{(payment.amount || 0).toLocaleString()}원</td>
                   <td>{payment.status || '완료'}</td>
                 </tr>

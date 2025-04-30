@@ -59,6 +59,7 @@ function PaymentPage() {
 
       // 결제 정보를 Firestore에 저장
       const paymentRef = await addDoc(collection(db, 'payments'), {
+        label: paymentResult.label,
         amount: paymentResult.amount,
         paymentMethod: paymentResult.paymentMethod,
         timestamp: new Date(),
@@ -68,11 +69,10 @@ function PaymentPage() {
         status: 'completed'
       });
 
-      console.log('Payment saved with ID:', paymentRef.id);
+      console.log('Payment saved===>', paymentRef.id, paymentResult.paymentMethod, paymentResult.label, paymentResult.amount);
 
-      // PaymentSuccess 페이지로 이동하면서 paymentId 전달
-      navigate('/payment/success', { 
-        state: { paymentId: paymentRef.id },
+      // PaymentSuccess 페이지로 이동하면서 필요한 정보 전달
+      navigate(`/payment/success?orderId=${paymentResult.orderId}&paymentKey=${paymentResult.paymentKey}&amount=${paymentResult.amount}&paymentSettingId=${selectedOption}`, { 
         replace: true
       });
     } catch (error) {
@@ -100,7 +100,8 @@ function PaymentPage() {
       // 결제 성공 시 처리
       handlePaymentSuccess({
         ...result,
-        orderId: orderId
+        orderId: orderId,
+        paymentKey: result.paymentKey
       });
     })
     .catch(function (error) {

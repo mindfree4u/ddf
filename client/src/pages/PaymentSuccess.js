@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { auth, db, sendPaymentNotification } from '../firebase';
-import { doc, getDoc, addDoc, collection } from 'firebase/firestore';
+import { doc, getDoc, addDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import './PaymentSuccess.css';
 
 const PaymentSuccess = () => {
@@ -32,28 +32,43 @@ const PaymentSuccess = () => {
         const searchParams = new URLSearchParams(location.search);
         const orderId = searchParams.get('orderId');
         const paymentKey = searchParams.get('paymentKey');
-        const amount = searchParams.get('amount');
+        const amount = parseInt(searchParams.get('amount'));
 
         if (!orderId || !paymentKey || !amount) {
           throw new Error('결제 정보를 찾을 수 없습니다. 결제 페이지에서 다시 시도해주세요.');
         }
 
+        // 금액에 해당하는 결제 설정 찾기
+        const q = query(
+          collection(db, 'payment_settings'),
+          where('amount', '==', amount)
+        );
+        const querySnapshot = await getDocs(q);
+        
+        let paymentType = '기본 결제';
+        if (!querySnapshot.empty) {
+          const paymentSetting = querySnapshot.docs[0].data();
+          paymentType = paymentSetting.label; // 전체 label을 결제 구분으로 사용
+        }
+
         // 결제 정보를 Firestore에 저장
         const paymentRef = await addDoc(collection(db, 'payments'), {
-          amount: parseInt(amount),
+          amount: amount,
           orderId: orderId,
           paymentKey: paymentKey,
+          paymentType: paymentType,
           timestamp: new Date(),
           userId: user.uid,
           userName: user.displayName || '사용자',
           status: 'completed'
         });
 
-        console.log('Payment saved with ID:', paymentRef.id, 'amount:', amount);
+        console.log('Payment saved with ID:', paymentRef.id, 'amount:', amount, 'type:', paymentType);
 
         // 저장된 결제 정보를 상태에 설정
         setPaymentInfo({
-          amount: parseInt(amount),
+          amount: amount,
+          paymentType: paymentType,
           timestamp: new Date()
         });
 
@@ -61,7 +76,8 @@ const PaymentSuccess = () => {
         try {
           await sendPaymentNotification({
             userName: user.displayName || '사용자',
-            amount: parseInt(amount),
+            amount: amount,
+            paymentType: paymentType,
             timestamp: new Date().toLocaleString()
           });
         } catch (emailError) {
@@ -80,7 +96,7 @@ const PaymentSuccess = () => {
     };
 
     processPayment();
-  }, []); // 빈 의존성 배열로 변경하여 한 번만 실행되도록 함
+  }, []);
 
   if (loading) return <div className="loading">결제 정보를 불러오는 중...</div>;
   if (error) return (
@@ -97,6 +113,7 @@ const PaymentSuccess = () => {
       <h1>결제가 완료되었습니다!</h1>
       <div className="payment-info">
         <h2>결제 정보</h2>
+        <p>결제 구분: {paymentInfo.paymentType}</p>
         <p>결제 금액: {paymentInfo.amount.toLocaleString()}원</p>
         <p>결제 일시: {paymentInfo.timestamp.toLocaleString()}</p>
       </div>

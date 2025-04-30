@@ -240,7 +240,7 @@ exports.sendPaymentNotification = functions.https.onCall(
     secrets: ['NAVER_EMAIL', 'NAVER_PASSWORD'],
   },
   async (request) => {
-    const { userName, amount, timestamp } = request.data;
+    const { userName, amount, paymentType, timestamp } = request.data;
 
     try {
       const transporter = getTransporter(NAVER_EMAIL.value(), NAVER_PASSWORD.value());
@@ -252,6 +252,7 @@ exports.sendPaymentNotification = functions.https.onCall(
         html: `
           <h2>새로운 결제 알림</h2>
           <p>결제자: ${userName}</p>
+          <p>결제 구분: ${paymentType}</p>
           <p>결제 금액: ${amount.toLocaleString()}원</p>
           <p>결제 시간: ${timestamp}</p>
         `
