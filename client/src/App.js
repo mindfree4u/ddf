@@ -24,6 +24,7 @@ import Profile from './pages/Profile';
 import MyReservations from './pages/MyReservations';
 import PaymentSuccess from './pages/PaymentSuccess';
 import PaymentSettings from './pages/PaymentSettings';
+import PaymentHistory from './pages/PaymentHistory';
 import './App.css';
 
 const PaymentPage = lazy(() => import('./pages/PaymentPage'));
@@ -110,6 +111,7 @@ function App() {
               </Suspense>
             ) : <Navigate to="/login" />} />
             <Route path="/payment/success" element={user ? <PaymentSuccess /> : <Navigate to="/login" />} />
+            <Route path="/admin/payment-history" element={user && isAdmin ? <PaymentHistory /> : <Navigate to="/" />} />
             <Route path="/" element={<Navigate to="/main" />} />
           </Routes>
           <Footer />
