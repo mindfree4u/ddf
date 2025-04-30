@@ -10,10 +10,17 @@ const PaymentSuccess = () => {
   const [paymentInfo, setPaymentInfo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const emailSentRef = useRef(false);
+  const processingRef = useRef(false);
 
   useEffect(() => {
-    const fetchPaymentInfo = async () => {
+    const processPayment = async () => {
+      // 이미 처리 중이거나 완료된 경우 중복 실행 방지
+      if (processingRef.current) {
+        return;
+      }
+
+      processingRef.current = true;
+
       try {
         const user = auth.currentUser;
         if (!user) {
@@ -42,7 +49,7 @@ const PaymentSuccess = () => {
           status: 'completed'
         });
 
-        console.log('Payment saved with ID:', paymentRef.id);
+        console.log('Payment saved with ID:', paymentRef.id, 'amount:', amount);
 
         // 저장된 결제 정보를 상태에 설정
         setPaymentInfo({
@@ -50,31 +57,30 @@ const PaymentSuccess = () => {
           timestamp: new Date()
         });
 
-        // 이메일 전송이 아직 되지 않았다면 전송
-        if (!emailSentRef.current) {
-          try {
-            await sendPaymentNotification({
-              userName: user.displayName || '사용자',
-              amount: parseInt(amount),
-              timestamp: new Date().toLocaleString()
-            });
-            emailSentRef.current = true;
-          } catch (emailError) {
-            console.error('Failed to send payment notification email:', emailError);
-            // 이메일 전송 실패는 사용자에게 보여주지 않음
-          }
+        // 이메일 전송
+        try {
+          await sendPaymentNotification({
+            userName: user.displayName || '사용자',
+            amount: parseInt(amount),
+            timestamp: new Date().toLocaleString()
+          });
+        } catch (emailError) {
+          console.error('Failed to send payment notification email:', emailError);
+          // 이메일 전송 실패는 사용자에게 보여주지 않음
         }
 
         setLoading(false);
       } catch (err) {
-        console.error('Error fetching payment info:', err);
+        console.error('Error processing payment:', err);
         setError(err.message);
         setLoading(false);
+      } finally {
+        processingRef.current = false;
       }
     };
 
-    fetchPaymentInfo();
-  }, [navigate, location.search]);
+    processPayment();
+  }, []); // 빈 의존성 배열로 변경하여 한 번만 실행되도록 함
 
   if (loading) return <div className="loading">결제 정보를 불러오는 중...</div>;
   if (error) return (
