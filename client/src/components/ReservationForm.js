@@ -250,7 +250,10 @@ function ReservationForm() {
     const reservationKey = `${dateStr}_${timeSlot}_${room}`;
     
     if (reservations[reservationKey]) {
-      if (isAdmin && reservations[reservationKey] === auth.currentUser.uid) {
+      const isMyReservation = reservations[reservationKey] === auth.currentUser.uid;
+      
+      if (isAdmin && isMyReservation) {
+        // 관리자가 자신의 예약을 취소할 때는 모달 창 사용
         setSelectedReservation({
           timeSlot,
           room,
@@ -258,9 +261,23 @@ function ReservationForm() {
           key: reservationKey
         });
         setShowActionModal(true);
-      } else if (reservations[reservationKey] === auth.currentUser.uid) {
-        if (window.confirm('해당 예약을 취소하시겠습니까?')) {
-          await cancelReservation(reservationKey, reservationIds[reservationKey]);
+      } else if (isAdmin || isMyReservation) {
+        // 관리자가 다른 회원의 예약을 취소하거나, 일반 회원이 자신의 예약을 취소할 때
+        const confirmMessage = isAdmin 
+          ? '해당 예약을 취소하시겠습니까? (관리자 권한으로 취소)'
+          : '해당 예약을 취소하시겠습니까?';
+          
+        if (window.confirm(confirmMessage)) {
+          try {
+            await cancelReservation(reservationKey, reservationIds[reservationKey]);
+            // 예약 취소 후 상태 업데이트
+            setSelectedTimeSlot(null);
+            setSelectedRoom(null);
+            setShowTypeButtons(false);
+          } catch (error) {
+            console.error('예약 취소 중 오류 발생:', error);
+            alert('예약 취소 중 오류가 발생했습니다.');
+          }
         }
       } else {
         alert('이미 예약된 시간입니다.');
@@ -399,12 +416,10 @@ function ReservationForm() {
       setReservationIds(newReservationIds);
       
       // 취소 후 현재 날짜의 예약을 다시 불러옴
-      fetchReservations(selectedDate);
-      
-      alert('예약이 취소되었습니다.');
+      await fetchReservations(selectedDate);
     } catch (error) {
       console.error('Error canceling reservation:', error);
-      alert('예약 취소 중 오류가 발생했습니다.');
+      throw error;
     }
   };
 
