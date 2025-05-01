@@ -74,3 +74,147 @@
 [debug] [2025-05-01T09:31:36.888Z] [functions[us-central1-sendPaymentNotification]] http function initialized (http://127.0.0.1:5000/drum-playground/us-central1/sendPaymentNotification).
 [info] i  functions: Loaded functions: sendReservationMail, sendCancelMail, savePlayRecord, getPlayRecords, calculateStats, onNewUserSignup, sendPaymentNotification 
 [warn] !  functions: The following emulators are not running, calls to these services will affect production: firestore, database, pubsub, storage, eventarc, tasks 
+[debug] [2025-05-01T10:54:25.789Z] DEBUG: File D:\Study\Cursor\drum-playground\functions\index.js changed, reloading triggers
+[debug] [2025-05-01T10:54:26.803Z] Validating nodejs source
+[debug] [2025-05-01T10:54:28.548Z] > [functions] package.json contents: {
+  "name": "functions",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "firebase-admin": "^13.3.0",
+    "firebase-functions": "^6.3.2",
+    "nodemailer": "^6.10.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.25.1",
+    "eslint": "^9.25.1",
+    "eslint-config-google": "^0.14.0",
+    "eslint-plugin-react": "^7.37.5",
+    "globals": "^16.0.0"
+  },
+  "description": ""
+}
+[debug] [2025-05-01T10:54:28.548Z] Building nodejs source
+[debug] [2025-05-01T10:54:28.548Z] Failed to find version of module node: reached end of search path D:\Study\Cursor\drum-playground\functions\node_modules
+[warn] !  functions: Your requested "node" version "18" doesn't match your global version "22". Using node@22 from host. 
+[debug] [2025-05-01T10:54:28.552Z] Could not find functions.yaml. Must use http discovery
+[debug] [2025-05-01T10:54:28.563Z] Found firebase-functions binary at 'D:\Study\Cursor\drum-playground\functions\node_modules\.bin\firebase-functions'
+[info] Serving at port 8939
+
+[debug] [2025-05-01T10:54:29.864Z] Got response from /__/functions.yaml {"endpoints":{"sendReservationMail":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"NAVER_EMAIL"},{"key":"NAVER_PASSWORD"}],"labels":{},"eventTrigger":{"eventType":"google.cloud.firestore.document.v1.created","eventFilters":{"database":"(default)","namespace":"(default)"},"eventFilterPathPatterns":{"document":"reservations/{reservationId}"},"retry":false},"entryPoint":"sendReservationMail"},"sendCancelMail":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"NAVER_EMAIL"},{"key":"NAVER_PASSWORD"}],"labels":{},"eventTrigger":{"eventType":"google.cloud.firestore.document.v1.deleted","eventFilters":{"database":"(default)","namespace":"(default)"},"eventFilterPathPatterns":{"document":"reservations/{reservationId}"},"retry":false},"entryPoint":"sendCancelMail"},"savePlayRecord":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","labels":{},"callableTrigger":{},"entryPoint":"savePlayRecord"},"getPlayRecords":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","labels":{},"callableTrigger":{},"entryPoint":"getPlayRecords"},"calculateStats":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","labels":{},"callableTrigger":{},"entryPoint":"calculateStats"},"onNewUserSignup":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"NAVER_EMAIL"},{"key":"NAVER_PASSWORD"}],"labels":{},"eventTrigger":{"eventType":"google.cloud.firestore.document.v1.created","eventFilters":{"database":"(default)","namespace":"(default)"},"eventFilterPathPatterns":{"document":"users/{userId}"},"retry":false},"entryPoint":"onNewUserSignup"},"sendPaymentNotification":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"NAVER_EMAIL"},{"key":"NAVER_PASSWORD"}],"labels":{},"callableTrigger":{},"entryPoint":"sendPaymentNotification"}},"specVersion":"v1alpha1","requiredAPIs":[],"extensions":{},"params":[{"type":"secret","name":"NAVER_EMAIL"},{"type":"secret","name":"NAVER_PASSWORD"}]}
+[debug] [2025-05-01T10:54:33.900Z] [functions] Loaded functions definitions from source: sendReservationMail, sendCancelMail, savePlayRecord, getPlayRecords, calculateStats, onNewUserSignup, sendPaymentNotification.
+[debug] [2025-05-01T10:54:38.670Z] DEBUG: File D:\Study\Cursor\drum-playground\functions\index.js changed, reloading triggers
+[debug] [2025-05-01T10:54:39.678Z] Validating nodejs source
+[debug] [2025-05-01T10:54:41.142Z] > [functions] package.json contents: {
+  "name": "functions",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "firebase-admin": "^13.3.0",
+    "firebase-functions": "^6.3.2",
+    "nodemailer": "^6.10.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.25.1",
+    "eslint": "^9.25.1",
+    "eslint-config-google": "^0.14.0",
+    "eslint-plugin-react": "^7.37.5",
+    "globals": "^16.0.0"
+  },
+  "description": ""
+}
+[debug] [2025-05-01T10:54:41.143Z] Building nodejs source
+[debug] [2025-05-01T10:54:41.143Z] Failed to find version of module node: reached end of search path D:\Study\Cursor\drum-playground\functions\node_modules
+[warn] !  functions: Your requested "node" version "18" doesn't match your global version "22". Using node@22 from host. 
+[debug] [2025-05-01T10:54:41.144Z] Could not find functions.yaml. Must use http discovery
+[debug] [2025-05-01T10:54:41.151Z] Found firebase-functions binary at 'D:\Study\Cursor\drum-playground\functions\node_modules\.bin\firebase-functions'
+[info] Serving at port 8372
+
+[debug] [2025-05-01T10:54:42.568Z] Got response from /__/functions.yaml {"endpoints":{"sendReservationMail":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"NAVER_EMAIL"},{"key":"NAVER_PASSWORD"}],"labels":{},"eventTrigger":{"eventType":"google.cloud.firestore.document.v1.created","eventFilters":{"database":"(default)","namespace":"(default)"},"eventFilterPathPatterns":{"document":"reservations/{reservationId}"},"retry":false},"entryPoint":"sendReservationMail"},"sendCancelMail":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"NAVER_EMAIL"},{"key":"NAVER_PASSWORD"}],"labels":{},"eventTrigger":{"eventType":"google.cloud.firestore.document.v1.deleted","eventFilters":{"database":"(default)","namespace":"(default)"},"eventFilterPathPatterns":{"document":"reservations/{reservationId}"},"retry":false},"entryPoint":"sendCancelMail"},"savePlayRecord":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","labels":{},"callableTrigger":{},"entryPoint":"savePlayRecord"},"getPlayRecords":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","labels":{},"callableTrigger":{},"entryPoint":"getPlayRecords"},"calculateStats":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","labels":{},"callableTrigger":{},"entryPoint":"calculateStats"},"onNewUserSignup":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"NAVER_EMAIL"},{"key":"NAVER_PASSWORD"}],"labels":{},"eventTrigger":{"eventType":"google.cloud.firestore.document.v1.created","eventFilters":{"database":"(default)","namespace":"(default)"},"eventFilterPathPatterns":{"document":"users/{userId}"},"retry":false},"entryPoint":"onNewUserSignup"},"sendPaymentNotification":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"NAVER_EMAIL"},{"key":"NAVER_PASSWORD"}],"labels":{},"callableTrigger":{},"entryPoint":"sendPaymentNotification"}},"specVersion":"v1alpha1","requiredAPIs":[],"extensions":{},"params":[{"type":"secret","name":"NAVER_EMAIL"},{"type":"secret","name":"NAVER_PASSWORD"}]}
+[debug] [2025-05-01T10:54:46.594Z] [functions] Loaded functions definitions from source: sendReservationMail, sendCancelMail, savePlayRecord, getPlayRecords, calculateStats, onNewUserSignup, sendPaymentNotification.
+[debug] [2025-05-01T10:55:17.123Z] DEBUG: File D:\Study\Cursor\drum-playground\functions\index.js changed, reloading triggers
+[debug] [2025-05-01T10:55:18.138Z] Validating nodejs source
+[debug] [2025-05-01T10:55:19.542Z] > [functions] package.json contents: {
+  "name": "functions",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "firebase-admin": "^13.3.0",
+    "firebase-functions": "^6.3.2",
+    "nodemailer": "^6.10.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.25.1",
+    "eslint": "^9.25.1",
+    "eslint-config-google": "^0.14.0",
+    "eslint-plugin-react": "^7.37.5",
+    "globals": "^16.0.0"
+  },
+  "description": ""
+}
+[debug] [2025-05-01T10:55:19.542Z] Building nodejs source
+[debug] [2025-05-01T10:55:19.542Z] Failed to find version of module node: reached end of search path D:\Study\Cursor\drum-playground\functions\node_modules
+[warn] !  functions: Your requested "node" version "18" doesn't match your global version "22". Using node@22 from host. 
+[debug] [2025-05-01T10:55:19.544Z] Could not find functions.yaml. Must use http discovery
+[debug] [2025-05-01T10:55:19.550Z] Found firebase-functions binary at 'D:\Study\Cursor\drum-playground\functions\node_modules\.bin\firebase-functions'
+[info] Serving at port 8079
+
+[debug] [2025-05-01T10:55:20.717Z] Got response from /__/functions.yaml {"endpoints":{"sendReservationMail":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"NAVER_EMAIL"},{"key":"NAVER_PASSWORD"}],"labels":{},"eventTrigger":{"eventType":"google.cloud.firestore.document.v1.created","eventFilters":{"database":"(default)","namespace":"(default)"},"eventFilterPathPatterns":{"document":"reservations/{reservationId}"},"retry":false},"entryPoint":"sendReservationMail"},"sendCancelMail":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"NAVER_EMAIL"},{"key":"NAVER_PASSWORD"}],"labels":{},"eventTrigger":{"eventType":"google.cloud.firestore.document.v1.deleted","eventFilters":{"database":"(default)","namespace":"(default)"},"eventFilterPathPatterns":{"document":"reservations/{reservationId}"},"retry":false},"entryPoint":"sendCancelMail"},"savePlayRecord":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","labels":{},"callableTrigger":{},"entryPoint":"savePlayRecord"},"getPlayRecords":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","labels":{},"callableTrigger":{},"entryPoint":"getPlayRecords"},"calculateStats":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","labels":{},"callableTrigger":{},"entryPoint":"calculateStats"},"onNewUserSignup":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"NAVER_EMAIL"},{"key":"NAVER_PASSWORD"}],"labels":{},"eventTrigger":{"eventType":"google.cloud.firestore.document.v1.created","eventFilters":{"database":"(default)","namespace":"(default)"},"eventFilterPathPatterns":{"document":"users/{userId}"},"retry":false},"entryPoint":"onNewUserSignup"},"sendPaymentNotification":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"NAVER_EMAIL"},{"key":"NAVER_PASSWORD"}],"labels":{},"callableTrigger":{},"entryPoint":"sendPaymentNotification"}},"specVersion":"v1alpha1","requiredAPIs":[],"extensions":{},"params":[{"type":"secret","name":"NAVER_EMAIL"},{"type":"secret","name":"NAVER_PASSWORD"}]}
+[debug] [2025-05-01T10:55:24.759Z] [functions] Loaded functions definitions from source: sendReservationMail, sendCancelMail, savePlayRecord, getPlayRecords, calculateStats, onNewUserSignup, sendPaymentNotification.
+[debug] [2025-05-01T11:00:28.803Z] DEBUG: File D:\Study\Cursor\drum-playground\functions\index.js changed, reloading triggers
+[debug] [2025-05-01T11:00:29.817Z] Validating nodejs source
+[debug] [2025-05-01T11:00:31.444Z] > [functions] package.json contents: {
+  "name": "functions",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "firebase-admin": "^13.3.0",
+    "firebase-functions": "^6.3.2",
+    "nodemailer": "^6.10.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.25.1",
+    "eslint": "^9.25.1",
+    "eslint-config-google": "^0.14.0",
+    "eslint-plugin-react": "^7.37.5",
+    "globals": "^16.0.0"
+  },
+  "description": ""
+}
+[debug] [2025-05-01T11:00:31.444Z] Building nodejs source
+[debug] [2025-05-01T11:00:31.444Z] Failed to find version of module node: reached end of search path D:\Study\Cursor\drum-playground\functions\node_modules
+[warn] !  functions: Your requested "node" version "18" doesn't match your global version "22". Using node@22 from host. 
+[debug] [2025-05-01T11:00:31.446Z] Could not find functions.yaml. Must use http discovery
+[debug] [2025-05-01T11:00:31.452Z] Found firebase-functions binary at 'D:\Study\Cursor\drum-playground\functions\node_modules\.bin\firebase-functions'
+[info] Serving at port 8187
+
+[debug] [2025-05-01T11:00:32.824Z] Got response from /__/functions.yaml {"endpoints":{"sendReservationMail":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"NAVER_EMAIL"},{"key":"NAVER_PASSWORD"}],"labels":{},"eventTrigger":{"eventType":"google.cloud.firestore.document.v1.created","eventFilters":{"database":"(default)","namespace":"(default)"},"eventFilterPathPatterns":{"document":"reservations/{reservationId}"},"retry":false},"entryPoint":"sendReservationMail"},"sendCancelMail":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"NAVER_EMAIL"},{"key":"NAVER_PASSWORD"}],"labels":{},"eventTrigger":{"eventType":"google.cloud.firestore.document.v1.deleted","eventFilters":{"database":"(default)","namespace":"(default)"},"eventFilterPathPatterns":{"document":"reservations/{reservationId}"},"retry":false},"entryPoint":"sendCancelMail"},"savePlayRecord":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","labels":{},"callableTrigger":{},"entryPoint":"savePlayRecord"},"getPlayRecords":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","labels":{},"callableTrigger":{},"entryPoint":"getPlayRecords"},"calculateStats":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","labels":{},"callableTrigger":{},"entryPoint":"calculateStats"},"onNewUserSignup":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"NAVER_EMAIL"},{"key":"NAVER_PASSWORD"}],"labels":{},"eventTrigger":{"eventType":"google.cloud.firestore.document.v1.created","eventFilters":{"database":"(default)","namespace":"(default)"},"eventFilterPathPatterns":{"document":"users/{userId}"},"retry":false},"entryPoint":"onNewUserSignup"},"sendPaymentNotification":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"NAVER_EMAIL"},{"key":"NAVER_PASSWORD"}],"labels":{},"callableTrigger":{},"entryPoint":"sendPaymentNotification"}},"specVersion":"v1alpha1","requiredAPIs":[],"extensions":{},"params":[{"type":"secret","name":"NAVER_EMAIL"},{"type":"secret","name":"NAVER_PASSWORD"}]}
+[debug] [2025-05-01T11:00:36.860Z] [functions] Loaded functions definitions from source: sendReservationMail, sendCancelMail, savePlayRecord, getPlayRecords, calculateStats, onNewUserSignup, sendPaymentNotification.

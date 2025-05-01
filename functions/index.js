@@ -212,7 +212,7 @@ exports.onNewUserSignup = onDocumentCreated(
     const mailOptions = {
       from: `"드럼놀이터" <${NAVER_EMAIL.value()}>`,
       to: adminMail,
-      subject: '[드럼놀이터] 새로운 회원가입 알림',
+      subject: '[드럼놀이터] 새로운 회원가입 알림(${data.name})',
       html: `
         <h2>새로운 회원이 가입했습니다.</h2>
         <p><strong>아이디:</strong> ${data.userId}</p>
