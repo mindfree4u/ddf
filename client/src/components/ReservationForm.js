@@ -38,10 +38,10 @@ function ReservationForm() {
 
   // 사용자 인증 상태 변경 시 관리자 상태 확인
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (user) {
-        checkAdminStatus();
-        checkUserRole();
+        await checkAdminStatus();
+        await checkUserRole();
       } else {
         setIsAdmin(false);
         setUserRole(null);
@@ -54,13 +54,23 @@ function ReservationForm() {
   const checkAdminStatus = async () => {
     if (auth.currentUser) {
       try {
-        const userDoc = await getDoc(doc(db, 'users', auth.currentUser.uid));
-        if (userDoc.exists()) {
-          const userData = userDoc.data();
-          // 관리자 확인 로직 수정 - 실제 데이터베이스 구조에 맞게 조정
-//          console.log('userData:', userData);
-//          console.log('userData.isAdmin:', userData.isAdmin);
-          setIsAdmin(userData.isAdmin === true);
+        // 먼저 email로 userId 찾기
+        const userQuery = query(collection(db, 'users'), where('email', '==', auth.currentUser.email));
+        const querySnapshot = await getDocs(userQuery);
+        
+        if (!querySnapshot.empty) {
+          const userData = querySnapshot.docs[0].data();
+          console.log('Full user data:', userData);
+          console.log('User role:', userData.role);
+          console.log('User ID:', userData.userId);
+          
+          // role이 'admin'인 경우 관리자로 설정
+          const isUserAdmin = userData.isAdmin === true || userData.role === 'admin' || userData.userId === 'admin';
+          console.log('Is admin check result:', isUserAdmin);
+          setIsAdmin(isUserAdmin);
+        } else {
+          console.log('No user document found for email:', auth.currentUser.email);
+          setIsAdmin(false);
         }
       } catch (error) {
         console.error('Error checking admin status:', error);
@@ -279,35 +289,39 @@ function ReservationForm() {
 
     if (!selectedTimeSlot || !selectedRoom) return;
 
-    // 현재 선택된 날짜의 모든 예약을 확인
-    const localDate = new Date(selectedDate.getTime() - (selectedDate.getTimezoneOffset() * 60000));
-    const dateStr = localDate.toISOString().split('T')[0];
-    let currentLessonCount = 0;
-    let currentPracticeCount = 0;
+    // 관리자는 예약 횟수 제한 없음
+    console.log('isAdmin===================>', isAdmin);
+    if (!isAdmin) {
+      // 현재 선택된 날짜의 모든 예약을 확인
+      const localDate = new Date(selectedDate.getTime() - (selectedDate.getTimezoneOffset() * 60000));
+      const dateStr = localDate.toISOString().split('T')[0];
+      let currentLessonCount = 0;
+      let currentPracticeCount = 0;
 
-    // 현재 날짜의 모든 예약을 확인하여 카운트
-    Object.entries(reservations).forEach(([key, userId]) => {
-      if (key.startsWith(dateStr) && userId === auth.currentUser?.uid) {
-        const details = reservationDetails[key];
-        if (details.startsWith('레슨')) currentLessonCount++;
-        if (details.startsWith('연습')) currentPracticeCount++;
+      // 현재 날짜의 모든 예약을 확인하여 카운트
+      Object.entries(reservations).forEach(([key, userId]) => {
+        if (key.startsWith(dateStr) && userId === auth.currentUser?.uid) {
+          const details = reservationDetails[key];
+          if (details.startsWith('레슨')) currentLessonCount++;
+          if (details.startsWith('연습')) currentPracticeCount++;
+        }
+      });
+
+      // 예약 제한 확인
+      if (type === '레슨' && currentLessonCount >= 1) {
+        alert('동일 일자에 "레슨"은 1회까지만 예약 가능합니다.');
+        setShowTypeButtons(false);
+        setSelectedTimeSlot(null);
+        setSelectedRoom(null);
+        return;
       }
-    });
-
-    // 예약 제한 확인
-    if (type === '레슨' && currentLessonCount >= 1) {
-      alert('동일 일자에 "레슨"은 1회까지만 예약 가능합니다.');
-      setShowTypeButtons(false);
-      setSelectedTimeSlot(null);
-      setSelectedRoom(null);
-      return;
-    }
-    if (type === '연습' && currentPracticeCount >= 1) {
-      alert('동일 일자에 "연습"은 1회까지만 예약 가능합니다.');
-      setShowTypeButtons(false);
-      setSelectedTimeSlot(null);
-      setSelectedRoom(null);
-      return;
+      if (type === '연습' && currentPracticeCount >= 1) {
+        alert('동일 일자에 "연습"은 1회까지만 예약 가능합니다.');
+        setShowTypeButtons(false);
+        setSelectedTimeSlot(null);
+        setSelectedRoom(null);
+        return;
+      }
     }
 
     try {
