@@ -25,6 +25,7 @@ function ReservationForm() {
   const [newUserName, setNewUserName] = useState('');
   const [showNameInput, setShowNameInput] = useState(false);
   const [isGuestReservationMap, setIsGuestReservationMap] = useState({});
+  const [dailyReservationCount, setDailyReservationCount] = useState({ lesson: 0, practice: 0 });
 
   const timeSlots = ['10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00'];
   const rooms = ['Room A', 'Room B', 'Room C', 'Room E'];
@@ -96,10 +97,16 @@ function ReservationForm() {
       const newReservationDetails = {};
       const newReservationIds = {};
       const newIsGuestReservationMap = {};
+      let lessonCount = 0;
+      let practiceCount = 0;
 
       // 예약자 userId별로 role을 조회
       const userPromises = querySnapshot.docs.map(async (docSnap) => {
         const data = docSnap.data();
+        if (data.userId === auth.currentUser?.uid) {
+          if (data.type === '레슨') lessonCount++;
+          if (data.type === '연습') practiceCount++;
+        }
         if (data.userId) {
           const userDoc = await getDoc(doc(db, 'users', data.userId));
           if (userDoc.exists()) {
@@ -127,6 +134,7 @@ function ReservationForm() {
       setReservationDetails(newReservationDetails);
       setReservationIds(newReservationIds);
       setIsGuestReservationMap(newIsGuestReservationMap);
+      setDailyReservationCount({ lesson: lessonCount, practice: practiceCount });
     } catch (error) {
       console.error('Error fetching reservations:', error);
     }
@@ -271,11 +279,44 @@ function ReservationForm() {
 
     if (!selectedTimeSlot || !selectedRoom) return;
 
+    // 현재 선택된 날짜의 모든 예약을 확인
+    const localDate = new Date(selectedDate.getTime() - (selectedDate.getTimezoneOffset() * 60000));
+    const dateStr = localDate.toISOString().split('T')[0];
+    let currentLessonCount = 0;
+    let currentPracticeCount = 0;
+
+    // 현재 날짜의 모든 예약을 확인하여 카운트
+    Object.entries(reservations).forEach(([key, userId]) => {
+      if (key.startsWith(dateStr) && userId === auth.currentUser?.uid) {
+        const details = reservationDetails[key];
+        if (details.startsWith('레슨')) currentLessonCount++;
+        if (details.startsWith('연습')) currentPracticeCount++;
+      }
+    });
+
+    // 예약 제한 확인
+    if (type === '레슨' && currentLessonCount >= 1) {
+      alert('동일 일자에 "레슨"은 1회까지만 예약 가능합니다.');
+      setShowTypeButtons(false);
+      setSelectedTimeSlot(null);
+      setSelectedRoom(null);
+      return;
+    }
+    if (type === '연습' && currentPracticeCount >= 1) {
+      alert('동일 일자에 "연습"은 1회까지만 예약 가능합니다.');
+      setShowTypeButtons(false);
+      setSelectedTimeSlot(null);
+      setSelectedRoom(null);
+      return;
+    }
+
     try {
       await makeReservation(type, auth.currentUser.displayName || '익명');
       setShowTypeButtons(false);
       setSelectedTimeSlot(null);
       setSelectedRoom(null);
+      // 예약 후 현재 날짜의 예약을 다시 불러옴
+      fetchReservations(selectedDate);
     } catch (error) {
       console.error('예약 처리 중 오류 발생:', error);
       alert('예약 처리 중 오류가 발생했습니다.');
@@ -342,6 +383,9 @@ function ReservationForm() {
       setReservations(newReservations);
       setReservationDetails(newReservationDetails);
       setReservationIds(newReservationIds);
+      
+      // 취소 후 현재 날짜의 예약을 다시 불러옴
+      fetchReservations(selectedDate);
       
       alert('예약이 취소되었습니다.');
     } catch (error) {
