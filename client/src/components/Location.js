@@ -9,8 +9,13 @@ const Location = () => {
   const address = "대전광역시 유성구 하기동 송림로53번길 6-17";
 
   const handleFindWay = () => {
-    const encodedAddress = encodeURIComponent(address);
-    window.open(`https://map.kakao.com/link/to/드럼놀이터,36.3456789,127.3456789`);
+    const geocoder = new window.kakao.maps.services.Geocoder();
+    geocoder.addressSearch(address, (result, status) => {
+      if (status === window.kakao.maps.services.Status.OK) {
+        const coords = new window.kakao.maps.LatLng(result[0].y, result[0].x);
+        window.open(`https://map.kakao.com/link/to/${encodeURIComponent(address)},${coords.getLat()},${coords.getLng()}`);
+      }
+    });
   };
 
   useEffect(() => {
@@ -18,7 +23,7 @@ const Location = () => {
       try {
         const container = mapRef.current;
         const options = {
-          center: new window.kakao.maps.LatLng(36.3456789, 127.3456789),
+          center: new window.kakao.maps.LatLng(36.354264, 127.366068),
           level: 3
         };
         

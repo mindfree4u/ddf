@@ -9,6 +9,7 @@ import './ReservationForm.css';
 function ReservationForm() {
   const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [userRole, setUserRole] = useState(null);
 
   const [reservations, setReservations] = useState({});
   const [reservationDetails, setReservationDetails] = useState({});
@@ -31,16 +32,18 @@ function ReservationForm() {
   useEffect(() => {
     checkAdminStatus();
     fetchReservations(selectedDate);
+    checkUserRole();
   }, [selectedDate]);
 
   // 사용자 인증 상태 변경 시 관리자 상태 확인
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
-        checkAdminStatus();    
-        setIsAdmin(true);    
+        checkAdminStatus();
+        checkUserRole();
       } else {
         setIsAdmin(false);
+        setUserRole(null);
       }
     });
 
@@ -64,6 +67,20 @@ function ReservationForm() {
       }
     } else {
       setIsAdmin(false);
+    }
+  };
+
+  const checkUserRole = async () => {
+    if (auth.currentUser) {
+      try {
+        const userDoc = await getDoc(doc(db, 'users', auth.currentUser.uid));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          setUserRole(userData.role);
+        }
+      } catch (error) {
+        console.error('Error checking user role:', error);
+      }
     }
   };
 
@@ -186,6 +203,10 @@ function ReservationForm() {
     };
   }, []);
 
+  const handleNaverPlaceRedirect = () => {
+    window.open('https://m.place.naver.com/place/1822651205/ticket?entry=pll', '_blank');
+  };
+
   const handleReservation = async (timeSlot, room, e) => {
     if (e) {
       e.preventDefault();
@@ -193,8 +214,16 @@ function ReservationForm() {
     }
 
     if (!auth.currentUser) {
-      alert('로그인이 필요합니다.');
-      navigate('/login');
+      if (window.confirm('비회원의 경우 네이버에서 예약을 해 주시기 바랍니다. 네이버로 이동하시겠습니까?')) {
+        handleNaverPlaceRedirect();
+      }
+      return;
+    }
+
+    if (userRole === 'guest') {
+      if (window.confirm('비회원의 경우 네이버에서 예약을 해 주시기 바랍니다. 네이버로 이동하시겠습니까?')) {
+        handleNaverPlaceRedirect();
+      }
       return;
     }
 
@@ -441,11 +470,26 @@ function ReservationForm() {
 
   const getReservationText = (timeSlot, room) => {
     const localDate = new Date(selectedDate.getTime() - (selectedDate.getTimezoneOffset() * 60000));
-    // const localDate = new Date(selectedDate.getTime());
     const dateStr = localDate.toISOString().split('T')[0];
     const reservationKey = `${dateStr}_${timeSlot}_${room}`;
     
     if (selectedTimeSlot === timeSlot && selectedRoom === room && showTypeButtons) {
+      if (userRole === 'guest') {
+        return (
+          <div className="guest-reservation-message">
+            <p>비회원의 경우 네이버에서 예약을 해 주시기 바랍니다</p>
+            <button 
+              className="naver-reservation-button"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleNaverPlaceRedirect();
+              }}
+            >
+              네이버로 예약하기
+            </button>
+          </div>
+        );
+      }
       return (
         <div 
           className="type-buttons" 
@@ -480,7 +524,7 @@ function ReservationForm() {
       }
     }
     
-    return '예약하기';
+    return auth.currentUser ? (userRole === 'guest' ? '예약하기' : '예약하기') : '예약하기';
   };
 
   const handleDateNavigation = (direction) => {
