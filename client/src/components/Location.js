@@ -8,6 +8,7 @@ const Location = () => {
   const [mapError, setMapError] = useState(null);
   const address = "대전광역시 유성구 하기동 송림로53번길 6-17";
 
+
   const handleFindWay = () => {
     const geocoder = new window.kakao.maps.services.Geocoder();
     geocoder.addressSearch(address, (result, status) => {
