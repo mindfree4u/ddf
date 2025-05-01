@@ -49,49 +49,17 @@ function PaymentPage() {
     return paymentOptions.find(opt => opt.value === selectedOption)?.amount || 0;
   };
 
-  const handlePaymentSuccess = async (paymentResult) => {
-    try {
-      const user = auth.currentUser;
-      if (!user) {
-        navigate('/login');
-        return;
-      }
-
-      // 결제 정보를 Firestore에 저장
-      const paymentRef = await addDoc(collection(db, 'payments'), {
-        label: paymentResult.label,
-        amount: paymentResult.amount,
-        paymentMethod: paymentResult.paymentMethod,
-        timestamp: new Date(),
-        userId: user.uid,
-        userName: user.displayName || '사용자',
-        orderId: paymentResult.orderId,
-        status: 'completed'
-      });
-
-      console.log('Payment saved===>', paymentRef.id, paymentResult.paymentMethod, paymentResult.label, paymentResult.amount);
-
-      // PaymentSuccess 페이지로 이동하면서 필요한 정보 전달
-      navigate(`/payment/success?orderId=${paymentResult.orderId}&paymentKey=${paymentResult.paymentKey}&amount=${paymentResult.amount}&paymentSettingId=${selectedOption}`, { 
-        replace: true
-      });
-    } catch (error) {
-      console.error('Error saving payment:', error);
-      alert('결제 정보 저장 중 오류가 발생했습니다.');
-    }
-  };
-
-  function requestTossPayment(amount) {
+  const requestTossPayment = (amount) => {
     const orderId = 'order_' + Date.now();
-    const tossPayments = window.TossPayments(TOSS_CLIENT_KEY);
-    
     const selectedOptionLabel = paymentOptions.find(opt => opt.value === selectedOption)?.label || '직접입력';
+    
+    const tossPayments = window.TossPayments(TOSS_CLIENT_KEY);
     
     tossPayments.requestPayment('카드', {
       amount,
       orderId,
       orderName: selectedOptionLabel,
-      customerName: '테스트회원',
+      customerName: auth.currentUser?.displayName || '사용자',
       successUrl: window.location.origin + '/payment/success',
       failUrl: window.location.origin + '/payment-fail',
     })
@@ -101,17 +69,75 @@ function PaymentPage() {
       handlePaymentSuccess({
         ...result,
         orderId: orderId,
-        paymentKey: result.paymentKey
+        paymentKey: result.paymentKey,
+        amount: amount,
+        label: selectedOptionLabel,
+        paymentMethod: 'card'
       });
     })
     .catch(function (error) {
+      console.error('Payment error:', error);
       if (error.code === 'USER_CANCEL') {
         alert('결제가 취소되었습니다.');
       } else {
         alert('결제에 실패했습니다.\n' + error.message);
       }
     });
-  }
+  };
+
+  const handlePaymentSuccess = async (paymentResult) => {
+    try {
+      const user = auth.currentUser;
+      if (!user) {
+        navigate('/login');
+        return;
+      }
+
+      console.log('Saving payment info:', {
+        orderId: paymentResult.orderId,
+        amount: paymentResult.amount,
+        paymentMethod: paymentResult.paymentMethod,
+        label: paymentResult.label
+      });
+
+      // 결제 정보를 Firestore에 저장
+      const paymentData = {
+        label: paymentResult.label,
+        amount: paymentResult.amount,
+        paymentMethod: paymentResult.paymentMethod,
+        timestamp: new Date(),
+        userId: user.uid,
+        userName: user.displayName || '사용자',
+        orderId: paymentResult.orderId,
+        paymentKey: paymentResult.paymentKey,
+        status: 'completed'
+      };
+
+      // Firestore에 저장 시도
+      let paymentRef;
+      try {
+        paymentRef = await addDoc(collection(db, 'payments'), paymentData);
+        console.log('Payment saved with ID:', paymentRef.id);
+      } catch (saveError) {
+        console.error('Error saving payment to Firestore:', saveError);
+//        throw new Error('결제 정보 저장에 실패했습니다.');
+      }
+
+      // 모바일 환경에서 결제 정보가 저장되는 것을 보장하기 위해 약간의 지연 추가
+      await new Promise(resolve => setTimeout(resolve, 3000));
+
+      // PaymentSuccess 페이지로 이동하면서 필요한 정보 전달
+      const successUrl = `/payment/success?orderId=${paymentResult.orderId}&paymentKey=${paymentResult.paymentKey}&amount=${paymentResult.amount}&paymentSettingId=${selectedOption}&paymentMethod=${paymentResult.paymentMethod}`;
+      console.log('Navigating to:', successUrl);
+      
+      navigate(successUrl, { 
+        replace: true
+      });
+    } catch (error) {
+      console.error('Error in handlePaymentSuccess:', error);
+      alert('결제 정보 저장 중 오류가 발생했습니다: ' + error.message);
+    }
+  };
 
   const handlePayment = () => {
     const amount = getAmount();

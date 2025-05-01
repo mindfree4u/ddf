@@ -8,7 +8,11 @@ function PaymentHistory() {
   const navigate = useNavigate();
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedMonth, setSelectedMonth] = useState(new Date().toISOString().slice(0, 7));
+  const [selectedMonth, setSelectedMonth] = useState(() => {
+    const now = new Date();
+    const koreanTime = new Date(now.getTime() + (9 * 60 * 60 * 1000)); // UTC+9
+    return koreanTime.toISOString().slice(0, 7); // YYYY-MM 형식
+  });
   const [totalAmount, setTotalAmount] = useState(0);
 
   useEffect(() => {

@@ -45,7 +45,7 @@ const PaymentSuccess = () => {
         );
         const querySnapshot = await getDocs(q);
         
-        let paymentType = '기본 결제';
+        let paymentType = '금액 입력';
         if (!querySnapshot.empty) {
           const paymentSetting = querySnapshot.docs[0].data();
           paymentType = paymentSetting.label; // 전체 label을 결제 구분으로 사용

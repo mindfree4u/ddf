@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "드럼놀이터",
+  "name": "드럼놀이터 예약시스템",
   "icons": [
     {
       "src": "favicon.ico",
