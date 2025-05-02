@@ -532,16 +532,33 @@ input[type="date"]::-ms-expand {
 
   .date-display::before,
   .date-display::after {
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
   }
+
+  .date-label {
+    color: #666;
+    font-weight: 500;
+    width: 70%;
+    margin-left: 3%;
+    font-size: 14px;
+  }
+
   .date-value {
     color: #333;
     font-weight: 500;
     width: 100%;
-    font-size: 13px;
-    margin-left: -15px;
+    font-size: 14px;
+    margin-left: -10px;
   }
+  .date-nav-button.prev {
+    margin-left: -20px;
+  }
+  
+  .date-nav-button.next {
+    margin-left: 1px;
+
+  }   
 }
 
 @media (min-width: 1200px) {
