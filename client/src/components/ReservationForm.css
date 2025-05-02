@@ -129,7 +129,7 @@
 }
 
 .date-value {
-  color: #333;
+  color: hsl(290, 97%, 49%);
   font-weight: 500;
   width: 95%;
   font-size: 16px;
@@ -137,19 +137,19 @@
 }
 
 .date-input {
-  width: 60%;
+  width: 55%;
   padding: 0rem;
-  padding-left: 35px;
-  padding-right: 35px;
+  padding-left: 25px;
+  padding-right: 25px;
   border: 1px solid #dbd3df;
   border-radius: 6px;
-  font-size: 1rem;
-  font-weight: 500;
-  color: #333333;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #868686;
   background-color: rgb(247, 241, 241);
   cursor: pointer;
   transition: border-color 0.3s;
-  height: 20px;
+  height: 16px;
 }
 
 .date-input:focus {
@@ -527,7 +527,13 @@ input[type="date"]::-ms-expand {
   }
 
   .date-display {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
     font-size: 0.9rem;
+    width: 75%;
+    position: relative;
+    transition: transform 0.2s ease;
   }
 
   .date-display::before,
@@ -537,7 +543,7 @@ input[type="date"]::-ms-expand {
   }
 
   .date-label {
-    color: #666;
+    color: #777376;
     font-weight: 500;
     width: 70%;
     margin-left: 3%;
@@ -545,14 +551,14 @@ input[type="date"]::-ms-expand {
   }
 
   .date-value {
-    color: #333;
+    color: hsl(290, 97%, 49%);
     font-weight: 500;
     width: 100%;
     font-size: 14px;
     margin-left: -10px;
   }
   .date-nav-button.prev {
-    margin-left: -20px;
+    margin-left: -1px;
   }
   
   .date-nav-button.next {
