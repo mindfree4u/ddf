@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { collection, getDocs, doc, updateDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, query, orderBy, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import './MemberInfo.css';
 
@@ -28,7 +28,9 @@ const MemberInfo = () => {
 
   const fetchMembers = async () => {
     try {
-      const querySnapshot = await getDocs(collection(db, 'users'));
+      const q = query(collection(db, 'users'), orderBy('createdAt', 'desc')); 
+      const querySnapshot = await getDocs(q); 
+/*      const querySnapshot = await getDocs(collection(db, 'users')); */
       const membersList = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),

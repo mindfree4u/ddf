@@ -1,4 +1,4 @@
-.reservation-container {
+﻿.reservation-container {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -770,7 +770,7 @@ table {
 
 .date-nav-button.next {
   margin-left: 1px;
-}
+} 
 
 .guest-reservation-message {
   display: flex;

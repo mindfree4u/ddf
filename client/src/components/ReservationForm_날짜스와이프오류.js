@@ -9,6 +9,7 @@ import './ReservationForm.css';
 function ReservationForm() {
   const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [userRole, setUserRole] = useState(null);
 
   const [reservations, setReservations] = useState({});
   const [reservationDetails, setReservationDetails] = useState({});
@@ -18,11 +19,15 @@ function ReservationForm() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [touchStart, setTouchStart] = useState(null);
   const [touchEnd, setTouchEnd] = useState(null);
+  const [touchStartTime, setTouchStartTime] = useState(null);
+  const [isScrolling, setIsScrolling] = useState(false);
   const [showTypeButtons, setShowTypeButtons] = useState(false);
   const [showActionModal, setShowActionModal] = useState(false);
   const [selectedReservation, setSelectedReservation] = useState(null);
   const [newUserName, setNewUserName] = useState('');
   const [showNameInput, setShowNameInput] = useState(false);
+  const [isGuestReservationMap, setIsGuestReservationMap] = useState({});
+  const [dailyReservationCount, setDailyReservationCount] = useState({ lesson: 0, practice: 0 });
 
   const timeSlots = ['10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00'];
   const rooms = ['Room A', 'Room B', 'Room C', 'Room E'];
@@ -30,15 +35,18 @@ function ReservationForm() {
   useEffect(() => {
     checkAdminStatus();
     fetchReservations(selectedDate);
+    checkUserRole();
   }, [selectedDate]);
 
   // 사용자 인증 상태 변경 시 관리자 상태 확인
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (user) {
-        checkAdminStatus();
+        await checkAdminStatus();
+        await checkUserRole();
       } else {
         setIsAdmin(false);
+        setUserRole(null);
       }
     });
 
@@ -48,17 +56,23 @@ function ReservationForm() {
   const checkAdminStatus = async () => {
     if (auth.currentUser) {
       try {
-        const userDoc = await getDoc(doc(db, 'users', auth.currentUser.uid));
-        console.log("auth.currentUser.uid =======>>>> ", auth.currentUser.uid);
-        console.log('userDoc.data()===========================:', userDoc.data());
-        if (userDoc.exists()) {
-          const userData = userDoc.data();
-          // 관리자 확인 로직 수정 - 실제 데이터베이스 구조에 맞게 조정
-          setIsAdmin(userData.isAdmin === true || userData.role === 'admin' || userData.userId === 'admin');
-        }
-        else
-        {
-          console.log('userDoc Not Exists error==========================');
+        // 먼저 email로 userId 찾기
+        const userQuery = query(collection(db, 'users'), where('email', '==', auth.currentUser.email));
+        const querySnapshot = await getDocs(userQuery);
+        
+        if (!querySnapshot.empty) {
+          const userData = querySnapshot.docs[0].data();
+          console.log('Full user data:', userData);
+          console.log('User role:', userData.role);
+          console.log('User ID:', userData.userId);
+          
+          // role이 'admin'인 경우 관리자로 설정
+          const isUserAdmin = userData.isAdmin === true || userData.role === 'admin' || userData.userId === 'admin';
+          console.log('Is admin check result:', isUserAdmin);
+          setIsAdmin(isUserAdmin);
+        } else {
+          console.log('No user document found for email:', auth.currentUser.email);
+          setIsAdmin(false);
         }
       } catch (error) {
         console.error('Error checking admin status:', error);
@@ -66,6 +80,20 @@ function ReservationForm() {
       }
     } else {
       setIsAdmin(false);
+    }
+  };
+
+  const checkUserRole = async () => {
+    if (auth.currentUser) {
+      try {
+        const userDoc = await getDoc(doc(db, 'users', auth.currentUser.uid));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          setUserRole(userData.role);
+        }
+      } catch (error) {
+        console.error('Error checking user role:', error);
+      }
     }
   };
 
@@ -80,38 +108,45 @@ function ReservationForm() {
       const newReservations = {};
       const newReservationDetails = {};
       const newReservationIds = {};
-      const userRoles = {};
-      
-      // 모든 예약의 사용자 ID를 수집
-      const userIds = new Set();
-      querySnapshot.forEach(doc => {
-        const data = doc.data();
-        userIds.add(data.userId);
+      const newIsGuestReservationMap = {};
+      let lessonCount = 0;
+      let practiceCount = 0;
+
+      // 예약자 userId별로 role을 조회
+      const userPromises = querySnapshot.docs.map(async (docSnap) => {
+        const data = docSnap.data();
+        if (data.userId === auth.currentUser?.uid) {
+          if (data.type === '레슨') lessonCount++;
+          if (data.type === '연습') practiceCount++;
+        }
+        if (data.userId) {
+          const userDoc = await getDoc(doc(db, 'users', data.userId));
+          if (userDoc.exists()) {
+            return { userId: data.userId, role: userDoc.data().role };
+          }
+        }
+        return null;
+      });
+      const userResults = await Promise.all(userPromises);
+      const userRoleMap = {};
+      userResults.forEach(result => {
+        if (result) userRoleMap[result.userId] = result.role;
       });
 
-      // 사용자 역할 정보 가져오기
-      for (const userId of userIds) {
-        const userDoc = await getDoc(doc(db, 'users', userId));
-        if (userDoc.exists()) {
-          const userData = userDoc.data();
-          userRoles[userId] = userData.role || 'guest';
-        }
-      }
-      
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
+      querySnapshot.forEach((docSnap) => {
+        const data = docSnap.data();
         const key = `${dateStr}_${data.timeSlot}_${data.room}`;
         newReservations[key] = data.userId;
-        newReservationDetails[key] = {
-          text: `${data.type}(${data.userName})`,
-          role: userRoles[data.userId] || 'guest'
-        };
-        newReservationIds[key] = doc.id;
+        newReservationDetails[key] = `${data.type}(${data.userName})`;
+        newReservationIds[key] = docSnap.id;
+        newIsGuestReservationMap[key] = userRoleMap[data.userId] === 'guest';
       });
-      
+
       setReservations(newReservations);
       setReservationDetails(newReservationDetails);
       setReservationIds(newReservationIds);
+      setIsGuestReservationMap(newIsGuestReservationMap);
+      setDailyReservationCount({ lesson: lessonCount, practice: practiceCount });
     } catch (error) {
       console.error('Error fetching reservations:', error);
     }
@@ -122,38 +157,41 @@ function ReservationForm() {
     setSelectedDate(newDate);
   };
 
-  const handleTouchStart = (e) => {
+  const handleTouchStart = (e, timeSlot, room) => {
+    e.preventDefault();
     setTouchStart(e.touches[0].clientX);
+    setTouchStartTime(Date.now());
+    setIsScrolling(false);
   };
 
   const handleTouchMove = (e) => {
-    setTouchEnd(e.touches[0].clientX);
+    if (!touchStart) return;
+    
+    const touchEnd = e.touches[0].clientX;
+    const distance = Math.abs(touchStart - touchEnd);
+    
+    // 일정 거리 이상 움직이면 스크롤로 판단
+    if (distance > 10) {
+      setIsScrolling(true);
+    }
   };
 
-  const handleTouchEnd = () => {
-    if (!touchStart || !touchEnd) return;
+  const handleTouchEnd = (e, timeSlot, room) => {
+    if (!touchStart || !touchStartTime) return;
     
-    const distance = touchStart - touchEnd;
-    const isLeftSwipe = distance > 50;
-    const isRightSwipe = distance < -50;
-
-    if (isLeftSwipe || isRightSwipe) {
-      if (navigator.vibrate) {
-        navigator.vibrate(50);
-      }
-
-      const newDate = new Date(selectedDate);
-      if (isLeftSwipe) {
-        newDate.setDate(newDate.getDate() + 1);
-      } else {
-        newDate.setDate(newDate.getDate() - 1);
-      }
-      setSelectedDate(newDate);
-      fetchReservations(newDate);
+    const touchEnd = e.changedTouches[0].clientX;
+    const distance = Math.abs(touchStart - touchEnd);
+    const touchDuration = Date.now() - touchStartTime;
+    
+    // 스크롤이나 확대/축소가 아닌 경우에만 예약 처리
+    if (!isScrolling && distance < 10 && touchDuration < 300) {
+      handleReservation(timeSlot, room, e);
     }
-
+    
     setTouchStart(null);
     setTouchEnd(null);
+    setTouchStartTime(null);
+    setIsScrolling(false);
   };
 
   const handleTouchOutside = (e) => {
@@ -169,6 +207,29 @@ function ReservationForm() {
     };
   }, [showTypeButtons]);
 
+  useEffect(() => {
+    function handleClickOutside(event) {
+      // 클릭된 요소가 예약 테이블 셀이거나 타입 버튼인 경우 무시
+      if (event.target.closest('.clickable') || event.target.closest('.type-buttons')) {
+        return;
+      }
+      // 그 외의 영역 클릭 시 선택 상태 초기화
+      setSelectedTimeSlot(null);
+      setSelectedRoom(null);
+      setShowTypeButtons(false);
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const handleNaverPlaceRedirect = () => {
+    window.open('https://m.place.naver.com/place/1822651205/ticket?entry=pll', '_blank');
+  };
+
   const handleReservation = async (timeSlot, room, e) => {
     if (e) {
       e.preventDefault();
@@ -176,8 +237,16 @@ function ReservationForm() {
     }
 
     if (!auth.currentUser) {
-      alert('로그인이 필요합니다.');
-      navigate('/login');
+      if (window.confirm('비회원의 경우 네이버에서 예약을 해 주시기 바랍니다. 네이버로 이동하시겠습니까?')) {
+        handleNaverPlaceRedirect();
+      }
+      return;
+    }
+
+    if (userRole === 'guest') {
+      if (window.confirm('비회원의 경우 네이버에서 예약을 해 주시기 바랍니다. 네이버로 이동하시겠습니까?')) {
+        handleNaverPlaceRedirect();
+      }
       return;
     }
 
@@ -186,9 +255,10 @@ function ReservationForm() {
     const reservationKey = `${dateStr}_${timeSlot}_${room}`;
     
     if (reservations[reservationKey]) {
-      // 관리자이거나 자신의 예약인 경우
-      console.log('reservations[reservationKey]:=====================>', reservations[reservationKey]);
-      if (isAdmin || reservations[reservationKey] === auth.currentUser.uid) {
+      const isMyReservation = reservations[reservationKey] === auth.currentUser.uid;
+      
+      if (isAdmin && isMyReservation) {
+        // 관리자가 자신의 예약을 취소할 때는 모달 창 사용
         setSelectedReservation({
           timeSlot,
           room,
@@ -196,22 +266,41 @@ function ReservationForm() {
           key: reservationKey
         });
         setShowActionModal(true);
+      } else if (isAdmin || isMyReservation) {
+        // 관리자가 다른 회원의 예약을 취소하거나, 일반 회원이 자신의 예약을 취소할 때
+        const confirmMessage = isAdmin 
+          ? '해당 예약을 취소하시겠습니까? (관리자 권한으로 취소)'
+          : '해당 예약을 취소하시겠습니까?';
+          
+        if (window.confirm(confirmMessage)) {
+          try {
+            await cancelReservation(reservationKey, reservationIds[reservationKey]);
+            // 예약 취소 후 상태 업데이트
+            setSelectedTimeSlot(null);
+            setSelectedRoom(null);
+            setShowTypeButtons(false);
+          } catch (error) {
+            console.error('예약 취소 중 오류 발생:', error);
+            alert('예약 취소 중 오류가 발생했습니다.');
+          }
+        }
       } else {
         alert('이미 예약된 시간입니다.');
       }
       return;
     }
 
-    // 이미 선택된 셀이 있다면 초기화
-    if (selectedTimeSlot || selectedRoom) {
+    // 다른 셀을 클릭한 경우 이전 선택 초기화
+    if (selectedTimeSlot !== timeSlot || selectedRoom !== room) {
+      setSelectedTimeSlot(timeSlot);
+      setSelectedRoom(room);
+      setShowTypeButtons(true);
+    } else {
+      // 같은 셀을 다시 클릭한 경우
       setSelectedTimeSlot(null);
       setSelectedRoom(null);
       setShowTypeButtons(false);
     }
-
-    setSelectedTimeSlot(timeSlot);
-    setSelectedRoom(room);
-    setShowTypeButtons(true);
   };
 
   const handleTypeSelection = async (type, e) => {
@@ -222,11 +311,48 @@ function ReservationForm() {
 
     if (!selectedTimeSlot || !selectedRoom) return;
 
+    // 관리자는 예약 횟수 제한 없음
+    console.log('isAdmin===================>', isAdmin);
+    if (!isAdmin) {
+      // 현재 선택된 날짜의 모든 예약을 확인
+      const localDate = new Date(selectedDate.getTime() - (selectedDate.getTimezoneOffset() * 60000));
+      const dateStr = localDate.toISOString().split('T')[0];
+      let currentLessonCount = 0;
+      let currentPracticeCount = 0;
+
+      // 현재 날짜의 모든 예약을 확인하여 카운트
+      Object.entries(reservations).forEach(([key, userId]) => {
+        if (key.startsWith(dateStr) && userId === auth.currentUser?.uid) {
+          const details = reservationDetails[key];
+          if (details.startsWith('레슨')) currentLessonCount++;
+          if (details.startsWith('연습')) currentPracticeCount++;
+        }
+      });
+
+      // 예약 제한 확인
+      if (type === '레슨' && currentLessonCount >= 1) {
+        alert('동일 일자에 "레슨"은 1회까지만 예약 가능합니다.');
+        setShowTypeButtons(false);
+        setSelectedTimeSlot(null);
+        setSelectedRoom(null);
+        return;
+      }
+      if (type === '연습' && currentPracticeCount >= 1) {
+        alert('동일 일자에 "연습"은 1회까지만 예약 가능합니다.');
+        setShowTypeButtons(false);
+        setSelectedTimeSlot(null);
+        setSelectedRoom(null);
+        return;
+      }
+    }
+
     try {
       await makeReservation(type, auth.currentUser.displayName || '익명');
       setShowTypeButtons(false);
       setSelectedTimeSlot(null);
       setSelectedRoom(null);
+      // 예약 후 현재 날짜의 예약을 다시 불러옴
+      fetchReservations(selectedDate);
     } catch (error) {
       console.error('예약 처리 중 오류 발생:', error);
       alert('예약 처리 중 오류가 발생했습니다.');
@@ -241,16 +367,6 @@ function ReservationForm() {
     const reservationKey = `${dateStr}_${selectedTimeSlot}_${selectedRoom}`;
 
     try {
-      // 사용자 역할 정보 가져오기
-      let userRole = 'guest';
-      if (auth.currentUser) {
-        const userDoc = await getDoc(doc(db, 'users', auth.currentUser.uid));
-        if (userDoc.exists()) {
-          const userData = userDoc.data();
-          userRole = userData.role || 'guest';
-        }
-      }
-
       const reservationData = {
         userId: auth.currentUser.uid,
         userName: userName,
@@ -261,8 +377,6 @@ function ReservationForm() {
         createdAt: Timestamp.now()
       };
 
-      console.log('reservationData:', reservationData);
-      console.log('userId:', reservationData);
       const docRef = await addDoc(collection(db, 'reservations'), reservationData);
       
       setReservations(prev => ({
@@ -272,10 +386,7 @@ function ReservationForm() {
       
       setReservationDetails(prev => ({
         ...prev,
-        [reservationKey]: {
-          text: `${type}(${userName})`,
-          role: userRole
-        }
+        [reservationKey]: `${type}(${userName})`
       }));
 
       setReservationIds(prev => ({
@@ -309,10 +420,11 @@ function ReservationForm() {
       setReservationDetails(newReservationDetails);
       setReservationIds(newReservationIds);
       
-      alert('예약이 취소되었습니다.');
+      // 취소 후 현재 날짜의 예약을 다시 불러옴
+      await fetchReservations(selectedDate);
     } catch (error) {
       console.error('Error canceling reservation:', error);
-      alert('예약 취소 중 오류가 발생했습니다.');
+      throw error;
     }
   };
 
@@ -332,10 +444,7 @@ function ReservationForm() {
         
         setReservationDetails(prev => ({
           ...prev,
-          [reservationKey]: {
-            text: `${type}(${newName})`,
-            role: 'guest'
-          }
+          [reservationKey]: `${type}(${newName})`
         }));
         
         alert('예약자 이름이 변경되었습니다.');
@@ -422,32 +531,11 @@ function ReservationForm() {
     const reservationKey = `${dateStr}_${timeSlot}_${room}`;
     if (reservations[reservationKey]) {
       const details = reservationDetails[reservationKey];
-      const type = details.text.split('(')[0];
+      const type = details.split('(')[0];
       const isAdminReservation = reservations[reservationKey] === auth.currentUser?.uid && isAdmin;
       const isMyReservation = reservations[reservationKey] === auth.currentUser?.uid;
-      const isGuestReservation = isAdmin && details?.role === 'guest';
-
-      let classes = ['reserved'];
-      
-      if (type === '레슨') {
-        classes.push('lesson');
-      } else {
-        classes.push('practice');
-      }
-      
-      if (isAdminReservation) {
-        classes.push('admin-reservation');
-      }
-      
-      if (isMyReservation) {
-        classes.push('my-reservation');
-      }
-      
-      if (isGuestReservation) {
-        classes.push('guest-reservation');
-      }
-      
-      return classes.join(' ');
+      const isGuestReservation = isGuestReservationMap[reservationKey];
+      return `reserved ${type === '레슨' ? 'lesson' : 'practice'} ${isAdminReservation ? 'admin-reservation' : ''} ${isMyReservation ? 'my-reservation' : ''} ${isGuestReservation ? 'guest-reservation' : ''}`;
     }
     return 'available';
   };
@@ -464,6 +552,22 @@ function ReservationForm() {
     const reservationKey = `${dateStr}_${timeSlot}_${room}`;
     
     if (selectedTimeSlot === timeSlot && selectedRoom === room && showTypeButtons) {
+      if (userRole === 'guest') {
+        return (
+          <div className="guest-reservation-message">
+            <p>비회원의 경우 네이버에서 예약을 해 주시기 바랍니다</p>
+            <button 
+              className="naver-reservation-button"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleNaverPlaceRedirect();
+              }}
+            >
+              네이버로 예약하기
+            </button>
+          </div>
+        );
+      }
       return (
         <div 
           className="type-buttons" 
@@ -491,14 +595,14 @@ function ReservationForm() {
     if (reservations[reservationKey]) {
       // 관리자이거나 자신의 예약인 경우 상세 정보 표시
       if (isAdmin || reservations[reservationKey] === auth.currentUser?.uid) {
-        return reservationDetails[reservationKey].text;
+        return reservationDetails[reservationKey];
       } else {
         // 일반 사용자가 다른 사람의 예약을 볼 때는 "예약완료"로 표시
         return "예약완료";
       }
     }
     
-    return '예약하기';
+    return auth.currentUser ? (userRole === 'guest' ? '예약하기' : '예약하기') : '예약하기';
   };
 
   const handleDateNavigation = (direction) => {
@@ -573,71 +677,11 @@ function ReservationForm() {
                     key={`${timeSlot}-${room}`}
                     className={`${getReservationClass(timeSlot, room)} clickable`}
                     onClick={(e) => handleReservation(timeSlot, room, e)}
-                    onTouchStart={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                    }}
-                    onTouchEnd={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handleReservation(timeSlot, room, e);
-                    }}
+                    onTouchStart={(e) => handleTouchStart(e, timeSlot, room)}
+                    onTouchMove={handleTouchMove}
+                    onTouchEnd={(e) => handleTouchEnd(e, timeSlot, room)}
                   >
-                    {selectedTimeSlot === timeSlot && selectedRoom === room && showTypeButtons ? (
-                      <div 
-                        className="type-buttons"
-                        onClick={(e) => e.stopPropagation()}
-                        onTouchStart={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                        }}
-                        onTouchEnd={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                        }}
-                      >
-                        <button 
-                          className="type-button lesson"
-                          onTouchStart={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                          }}
-                          onTouchEnd={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            handleTypeSelection('레슨', e);
-                          }}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            handleTypeSelection('레슨', e);
-                          }}
-                        >
-                          레슨
-                        </button>
-                        <button 
-                          className="type-button practice"
-                          onTouchStart={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                          }}
-                          onTouchEnd={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            handleTypeSelection('연습', e);
-                          }}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            handleTypeSelection('연습', e);
-                          }}
-                        >
-                          연습
-                        </button>
-                      </div>
-                    ) : (
-                      getReservationText(timeSlot, room)
-                    )}
+                    {getReservationText(timeSlot, room)}
                   </td>
                 ))}
               </tr>
@@ -649,12 +693,13 @@ function ReservationForm() {
         <ul>
           <li>원하는 시간/장소에 "예약하기" 를 누른 후 "레슨" 또는 "연습" 을 선택하면 예약이 이루어집니다.</li>
           <li>Room A는 레슨 전용입니다.(나머지 Room은 레슨과 연습 예약이 가능합니다)</li>
-          <li>예약된 내용을 누르면 취소가 가능합니다.</li>
+          <li>본인이 예약한 셀을 누르면 취소가 가능합니다.</li>
           {isAdmin && <li>관리자는 자신이 예약한 항목을 클릭하여 예약자명을 수정할 수 있습니다.</li>}
         </ul>
       </div>
 
       {/* 작업 선택 모달 */}
+      
       {showActionModal && (
         <div className="action-modal-overlay">
           <div className="action-modal">
