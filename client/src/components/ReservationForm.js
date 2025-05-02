@@ -660,7 +660,20 @@ function ReservationForm() {
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              handleDateNavigation('prev');
+              const newDate = new Date(selectedDate);
+              newDate.setDate(newDate.getDate() - 1);
+              setSelectedDate(newDate);
+              fetchReservations(newDate);
+            }}
+            style={{
+              position: 'relative',
+              zIndex: 10,
+              padding: '8px 12px',
+              fontSize: '16px',
+              cursor: 'pointer',
+              backgroundColor: 'transparent',
+              border: 'none',
+              outline: 'none'
             }}
           >
             &lt;
@@ -672,8 +685,23 @@ function ReservationForm() {
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              handleDateNavigation('next');
+              const newDate = new Date(selectedDate);
+              newDate.setDate(newDate.getDate() + 1);
+              setSelectedDate(newDate);
+              fetchReservations(newDate);
             }}
+            /*
+            style={{
+              position: 'relative',
+              zIndex: 10,
+              padding: '8px 12px',
+              fontSize: '16px',
+              cursor: 'pointer',
+              backgroundColor: 'transparent',
+              border: 'none',
+              outline: 'none'
+            }}
+              */
           >
             &gt;
           </button>

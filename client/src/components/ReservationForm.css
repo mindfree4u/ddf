@@ -749,6 +749,7 @@ table {
   background-color: #cccccc;
 }
 
+
 .date-nav-button {
   background: none;
   width: 1%;
@@ -760,6 +761,7 @@ table {
   transition: color 0.2s;
 }
 
+
 .date-nav-button:hover {
   color: #007bff;
 }
@@ -770,6 +772,7 @@ table {
 
 .date-nav-button.next {
   margin-left: 1px;
+  margin-right: 20px;
 } 
 
 .guest-reservation-message {
