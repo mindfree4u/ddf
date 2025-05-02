@@ -60,7 +60,9 @@ function MainMenu({ isAdmin }) {
   const handleReservationClick = (e) => {
     if (!isLoggedIn) {
       e.preventDefault();
+      // 현재 경로를 저장
       localStorage.setItem('redirectAfterLogin', '/reservation');
+      console.log('Saved redirect path to localStorage:', '/reservation');
       navigate('/login');
     } else {
       navigate('/reservation');

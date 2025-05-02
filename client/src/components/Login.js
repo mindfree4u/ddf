@@ -56,14 +56,16 @@ function Login() {
 
       // 로그인 성공 후 저장된 리다이렉트 경로 확인
       const redirectPath = localStorage.getItem('redirectAfterLogin');
+      console.log('Redirect path from localStorage:', redirectPath);
+      
       if (redirectPath) {
-
-        console.log('Redirecting to saved path====>:', redirectPath);
-        navigate(redirectPath);
-        localStorage.removeItem('redirectAfterLogin'); // 사용 후 삭제
+        console.log('Redirecting to saved path:', redirectPath);
+        localStorage.removeItem('redirectAfterLogin');
+        // 직접 해당 경로로 이동
+        window.location.href = redirectPath;
       } else {
         console.log('No saved path found, going to main');
-        navigate('/main');
+        window.location.href = '/main';
       }
     } catch (error) {
       console.error('Error signing in:', error);

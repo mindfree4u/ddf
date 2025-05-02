@@ -112,7 +112,7 @@ function App() {
             ) : <Navigate to="/login" />} />
             <Route path="/payment/success" element={user ? <PaymentSuccess /> : <Navigate to="/login" />} />
             <Route path="/admin/payment-history" element={user && isAdmin ? <PaymentHistory /> : <Navigate to="/" />} />
-            <Route path="/" element={<Navigate to="/main" />} />
+            <Route path="/" element={<Navigate to="/main" replace />} />
           </Routes>
           <Footer />
         </div>
