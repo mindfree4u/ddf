@@ -88,7 +88,7 @@
   align-items: center;
   gap: 1rem;
   font-size: 1.1rem;
-  width: 60%;
+  width: 70%;
   position: relative;
   transition: transform 0.2s ease;
 }
@@ -123,20 +123,21 @@
 .date-label {
   color: #666;
   font-weight: 500;
-  width: 60%;
-  margin-left: 5%;
+  width: 70%;
+  margin-left: 3%;
+  font-size: 14px;
 }
 
 .date-value {
   color: #333;
   font-weight: 500;
   width: 95%;
-  font-size: 18px;
+  font-size: 16px;
   margin-left: -15px;
 }
 
 .date-input {
-  width: 50%;
+  width: 60%;
   padding: 0rem;
   padding-left: 35px;
   padding-right: 35px;
@@ -537,8 +538,8 @@ input[type="date"]::-ms-expand {
   .date-value {
     color: #333;
     font-weight: 500;
-    width: 95%;
-    font-size: 14px;
+    width: 100%;
+    font-size: 13px;
     margin-left: -15px;
   }
 }
