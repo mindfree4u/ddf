@@ -27,6 +27,9 @@ function ReservationForm() {
   const [isGuestReservationMap, setIsGuestReservationMap] = useState({});
   const [dailyReservationCount, setDailyReservationCount] = useState({ lesson: 0, practice: 0 });
 
+  // 터치 시작 위치를 저장하기 위한 상태 추가
+  const [touchStartPositions, setTouchStartPositions] = useState({});
+
   const timeSlots = ['10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00'];
   const rooms = ['Room A', 'Room B', 'Room C', 'Room E'];
 
@@ -230,6 +233,23 @@ function ReservationForm() {
       e.preventDefault();
       e.stopPropagation();
     }
+
+    // 모바일에서 터치 이벤트인 경우, 스와이프나 드래그가 아닌 정확한 터치인지 확인
+    if (e && e.type === 'touchend') {
+      const touch = e.changedTouches[0];
+      const touchStart = touchStartPositions[`${timeSlot}-${room}`];
+      
+      if (!touchStart) return;
+      
+      const deltaX = Math.abs(touch.clientX - touchStart.x);
+      const deltaY = Math.abs(touch.clientY - touchStart.y);
+      
+      // 수평 또는 수직으로 10px 이상 이동한 경우 버튼을 표시하지 않음
+      if (deltaX > 10 || deltaY > 10) {
+        return;
+      }
+    }
+
     if (!auth.currentUser) {
       alert('로그인이 필요합니다.');
       navigate('/login');
@@ -251,7 +271,6 @@ function ReservationForm() {
       const isMyReservation = reservations[reservationKey] === auth.currentUser.uid;
       
       if (isAdmin && isMyReservation) {
-        // 관리자가 자신의 예약을 취소할 때는 모달 창 사용
         setSelectedReservation({
           timeSlot,
           room,
@@ -260,7 +279,6 @@ function ReservationForm() {
         });
         setShowActionModal(true);
       } else if (isAdmin || isMyReservation) {
-        // 관리자가 다른 회원의 예약을 취소하거나, 일반 회원이 자신의 예약을 취소할 때
         const confirmMessage = isAdmin 
           ? '해당 예약을 취소하시겠습니까? (관리자 권한으로 취소)'
           : '해당 예약을 취소하시겠습니까?';
@@ -268,7 +286,6 @@ function ReservationForm() {
         if (window.confirm(confirmMessage)) {
           try {
             await cancelReservation(reservationKey, reservationIds[reservationKey]);
-            // 예약 취소 후 상태 업데이트
             setSelectedTimeSlot(null);
             setSelectedRoom(null);
             setShowTypeButtons(false);
@@ -283,13 +300,11 @@ function ReservationForm() {
       return;
     }
 
-    // 다른 셀을 클릭한 경우 이전 선택 초기화
     if (selectedTimeSlot !== timeSlot || selectedRoom !== room) {
       setSelectedTimeSlot(timeSlot);
       setSelectedRoom(room);
       setShowTypeButtons(true);
     } else {
-      // 같은 셀을 다시 클릭한 경우
       setSelectedTimeSlot(null);
       setSelectedRoom(null);
       setShowTypeButtons(false);
@@ -609,6 +624,27 @@ function ReservationForm() {
     fetchReservations(newDate);
   };
 
+  // 테이블 셀의 이벤트 핸들러 수정
+  const handleCellTouchStart = (timeSlot, room, e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const touch = e.touches[0];
+    setTouchStartPositions({
+      ...touchStartPositions,
+      [`${timeSlot}-${room}`]: {
+        x: touch.clientX,
+        y: touch.clientY
+      }
+    });
+  };
+
+  const handleCellTouchEnd = (timeSlot, room, e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    handleReservation(timeSlot, room, e);
+  };
+
   return (
     <div className="reservation-container">
       <h2>놀이터 예약</h2>
@@ -670,15 +706,8 @@ function ReservationForm() {
                     key={`${timeSlot}-${room}`}
                     className={`${getReservationClass(timeSlot, room)} clickable`}
                     onClick={(e) => handleReservation(timeSlot, room, e)}
-                    onTouchStart={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                    }}
-                    onTouchEnd={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handleReservation(timeSlot, room, e);
-                    }}
+                    onTouchStart={(e) => handleCellTouchStart(timeSlot, room, e)}
+                    onTouchEnd={(e) => handleCellTouchEnd(timeSlot, room, e)}
                   >
                     {selectedTimeSlot === timeSlot && selectedRoom === room && showTypeButtons ? (
                       <div 
